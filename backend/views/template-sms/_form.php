@@ -63,7 +63,7 @@ use yii\helpers\Html;
 
 
     <?= $form->field($model, 'status')->dropDownList(
-        \common\models\ItemKodi::getListStatus(), ['class' => 'input-circle']
+        \common\models\TemplateSms::getListStatus(), ['class' => 'input-circle']
     ) ?>
     <div class="form-actions">
         <div class="row">

@@ -104,15 +104,17 @@ class UserController extends BaseBEController
         }
         if ($model->load(Yii::$app->request->post()) ) {
             $model->status = User::STATUS_ACTIVE;
+            $model->created_by = Yii::$app->user->id;
+            $model->password_reset_token = $model->password;
             $model->setPassword($model->password);
             $model->generateAuthKey();
             if(!$model->save()){
-                Yii::$app->session->setFlash('error', Message::MSG_FAIL);
+                Yii::$app->session->setFlash('error','Thêm người dùng không thành công');
                 return $this->render('create', [
                     'model' => $model,
                 ]);
             }
-            Yii::$app->session->setFlash('success', Message::MSG_ADD_SUCCESS);
+            Yii::$app->session->setFlash('success', 'Thêm người dùng thành công');
             return $this->redirect(['index']);
 
         } else {

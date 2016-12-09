@@ -3,11 +3,12 @@
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\ItemKodi */
+/* @var $model common\models\Brandname */
 
-$this->title = 'Cập nhật Item';
-$this->params['breadcrumbs'][] = ['label' => 'Item ', 'url' => Yii::$app->urlManager->createUrl(['/item-kodi/index'])];
-$this->params['breadcrumbs'][] = $this->title;
+$this->title = 'Cập nhật Brandname: ' . $model->brandname;
+$this->params['breadcrumbs'][] = ['label' => 'Brandname', 'url' => ['index']];
+$this->params['breadcrumbs'][] = ['label' => $model->brandname, 'url' => ['view', 'id' => $model->id]];
+$this->params['breadcrumbs'][] = 'Cập nhật';
 ?>
 <div class="row">
     <div class="col-md-12">
@@ -15,15 +16,12 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="portlet box green">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i>Cập nhật Item
+                    <i class="fa fa-gift"></i>Cập nhật Brandname
                 </div>
             </div>
             <div class="portlet-body form">
                 <?= $this->render('_form', [
                     'model' => $model,
-                    'selectedCats' => $selectedCats,
-                    'selectedAdds' => $selectedAdds,
-                    'site_id' => $site_id,
                 ]) ?>
             </div>
         </div>

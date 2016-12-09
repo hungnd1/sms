@@ -1,6 +1,5 @@
 <?php
 use common\assets\MetronicLoginAsset;
-use frontend\assets\AppAsset;
 use common\widgets\Alert;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -8,7 +7,6 @@ use yii\helpers\Url;
 /* @var $this \yii\web\View */
 /* @var $content string */
 
-AppAsset::register($this);
 MetronicLoginAsset::register($this);
 $this->registerJs("Metronic.init();");
 $this->registerJs("Layout.init();");

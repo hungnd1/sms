@@ -167,6 +167,21 @@ $menuItems = [
             ],
 
         ]
+    ],
+    [
+        'label' => 'Quản lý tài khoản',
+        'url' => 'javascript:;',
+        'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+        'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+        'items' => [
+            [
+                'encode' => false,
+                'label' => '<i class="fa fa-server"></i> Thông tin brandname',
+                'url' => ['brandname/index'],
+                'require_auth' => true,
+            ],
+
+        ]
     ]
 ];
 echo Nav::widget([

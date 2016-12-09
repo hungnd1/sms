@@ -48,7 +48,7 @@ class TemplateSms extends \yii\db\ActiveRecord
     public function attributeLabels()
     {
         return [
-            'id' => 'ID',
+            'id' => 'Mã số',
             'template_name' => 'Tên',
             'template_content' => 'Nội dung',
             'status' => 'Trạng thái',

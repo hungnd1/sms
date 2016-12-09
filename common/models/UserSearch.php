@@ -5,7 +5,6 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\User;
 
 /**
  * UserSearch represents the model behind the search form about `common\models\User`.
@@ -42,13 +41,18 @@ class UserSearch extends User
     public function search($params, $childUser = false)
     {
         $query = User::find();
+        if (Yii::$app->user->identity->level != User::USER_LEVEL_ADMIN) {
+            $query->andWhere(['created_by' => Yii::$app->user->id]);
+        }else{
+            $query->andWhere('created_by is not null');
+        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
-            'sort'  => [
+            'sort' => [
                 'defaultOrder' => [
-                        'updated_at' => SORT_DESC
-                    ]
+                    'updated_at' => SORT_DESC
+                ]
             ],
         ]);
 
@@ -72,7 +76,7 @@ class UserSearch extends User
             'parent_id' => $this->parent_id,
         ]);
 
-        if($childUser){
+        if ($childUser) {
             $query->andWhere(['is', 'parent_id', null]);
         }
 

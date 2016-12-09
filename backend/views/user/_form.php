@@ -1,8 +1,8 @@
 <?php
 
-use yii\helpers\Html;
-use kartik\widgets\ActiveForm;
 use common\models\User;
+use kartik\widgets\ActiveForm;
+use yii\helpers\Html;
 use yii\web\View;
 
 /* @var $this yii\web\View */
@@ -36,19 +36,34 @@ $formId = $form->id;
 ?>
 <div class="form-body">
     <input type="hidden" name="close" id="close" value="0">
-    <?php if($model->isNewRecord){ ?>
-        <?= $form->field($model, 'username')->textInput(['placeholder' => 'Tài khoản','maxlength' => 20]) ?>
-        <?= $form->field($model, 'email')->textInput(['placeholder' => 'Email','maxlength' => 100]) ?>
-        <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên','maxlength' => 100]) ?>
+    <?php if ($model->isNewRecord) { ?>
+        <?= $form->field($model, 'username')->textInput(['placeholder' => 'Tài khoản', 'maxlength' => 20]) ?>
+        <?= $form->field($model, 'email')->textInput(['placeholder' => 'Email', 'maxlength' => 100]) ?>
+        <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên', 'maxlength' => 100]) ?>
         <?= $form->field($model, 'password')->passwordInput(['placeholder' => 'Nhập mật khẩu có độ dài  tối thiểu 8 kí tự']) ?>
         <?= $form->field($model, 'confirm_password')->passwordInput(['placeholder' => 'Nhập lại mật khẩu']) ?>
+        <?php
+        if (Yii::$app->user->identity->level == User::USER_LEVEL_ADMIN) { ?>
+            <?= $form->field($model,'level')->dropDownList(User::user_role_admin(), ['class' => 'input-circle']) ?>
+        <?php }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYADMIN){
+            echo $form->field($model,'level')->dropDownList(User::user_role_daily(), ['class' => 'input-circle']);
+        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANGADMIN){
+            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangadmin(), ['class' => 'input-circle']);
+        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYCAPDUOI){
+            echo $form->field($model,'level')->dropDownList(User::user_role_dailycapduoi(), ['class' => 'input-circle']);
+        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI){
+            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
+        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILY){
+            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
+        }
+        ?>
 
-    <?php }else{ ?>
-        <?= $form->field($model, 'username')->textInput(['readonly'=>true]) ?>
-        <?= $form->field($model, 'email')->textInput(['placeholder' => 'Email','maxlength' => 100]) ?>
-        <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên','maxlength' => 100]) ?>
-<!--        Nếu là chính nó thì không cho thay đổi trạng thái-->
-        <?php if($model->id != Yii::$app->user->getId()){ ?>
+    <?php } else { ?>
+        <?= $form->field($model, 'username')->textInput(['readonly' => true]) ?>
+        <?= $form->field($model, 'email')->textInput(['placeholder' => 'Email', 'maxlength' => 100]) ?>
+        <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên', 'maxlength' => 100]) ?>
+        <!--        Nếu là chính nó thì không cho thay đổi trạng thái-->
+        <?php if ($model->id != Yii::$app->user->getId()) { ?>
             <?= $form->field($model, 'status')->dropDownList(User::listStatus()) ?>
         <?php } ?>
     <?php } ?>
@@ -57,8 +72,8 @@ $formId = $form->id;
 <div class="form-actions">
     <div class="row">
         <div class="col-md-offset-3 col-md-9">
-<!--            --><?php //Html::submitButton($model->isNewRecord ? 'Create and Close' : 'Update and Close',['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary', 'onclick' => 'save_close()']) ?>
-            <?= Html::submitButton($model->isNewRecord ? 'Thêm mới' : 'Cập nhật',['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
+            <!--            --><?php //Html::submitButton($model->isNewRecord ? 'Create and Close' : 'Update and Close',['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary', 'onclick' => 'save_close()']) ?>
+            <?= Html::submitButton($model->isNewRecord ? 'Thêm mới' : 'Cập nhật', ['class' => $model->isNewRecord ? 'btn btn-success' : 'btn btn-primary']) ?>
             <?= Html::a('Hủy thao tác', ['index'], ['class' => 'btn btn-default']) ?>
         </div>
     </div>

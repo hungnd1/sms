@@ -39,6 +39,17 @@ $this->params['breadcrumbs'][] = $this->title;
                         'columns' => [
                             [
                                 'format' => 'raw',
+                                'width'=>'5%',
+                                'class' => '\kartik\grid\DataColumn',
+                                'attribute' => 'id',
+                                'value'=>function ($model, $key, $index, $widget) {
+                                    /** @var $model \common\models\TemplateSms */
+                                    return $model->id;
+
+                                },
+                            ],
+                            [
+                                'format' => 'raw',
                                 'class' => '\kartik\grid\DataColumn',
                                 'attribute' => 'template_name',
                                 'value'=>function ($model, $key, $index, $widget) {
@@ -79,20 +90,13 @@ $this->params['breadcrumbs'][] = $this->title;
                                 }
                             ],
                             [
-                                'class' => 'kartik\grid\EditableColumn',
+                                'class' => 'kartik\grid\DataColumn',
                                 'attribute' => 'status',
                                 'label'=>'Trạng thái',
                                 'format' => 'html',
-                                'refreshGrid' => true,
-                                'editableOptions' => function ($model, $key, $index) {
-                                    return [
-                                        'header' => 'Trạng thái',
-                                        'size' => 'md',
-                                        'displayValueConfig' => $model->listStatus,
-                                        'inputType' => \kartik\editable\Editable::INPUT_DROPDOWN_LIST,
-                                        'data' => $model->listStatus,
-                                        'placement' => \kartik\popover\PopoverX::ALIGN_LEFT
-                                    ];
+                                'value' => function($model){
+                                    /* @var $model \common\models\TemplateSms */
+                                    return $model->getStatusName();
                                 },
                                 'filterType' => GridView::FILTER_SELECT2,
                                 'filter' => [0 => 'Không hoạt động', 10 => 'Hoạt động'],
@@ -111,39 +115,3 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
     </div>
-
-<?php
-$urlCategory=Yii::$app->urlManager->createUrl("template-sms");
-Yii::info($urlCategory);
-$js=<<<JS
-
-function moveCategory(urlType,id) {
-    var url;
-    switch (urlType) {
-        case 1:
-            url = "move-up";
-            break;
-        case 2:
-            url = "move-down";
-            break;
-        case 3:
-            url = "move-back";
-            break;
-        case 4:
-            url = "move-forward";
-            break;
-    }
-    $.ajax({
-
-        type:'GET',
-        url: '{$urlCategory}'+'/'+ url,
-
-        data: {'id':id},
-        success:function(data) {
-            $.pjax.reload({container:'#grid-category-id'});
-
-        }
-    });
-}
-JS;
-$this->registerJs($js,$this::POS_HEAD);

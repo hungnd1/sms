@@ -25,17 +25,17 @@ use yii\web\IdentityInterface;
  * @property integer $role
  * @property integer $status
  * @property integer $created_at
+ * @property integer $created_by
  * @property integer $updated_at
  * @property integer $type
  * @property integer $site_id
  * @property integer $dealer_id
  * @property integer $parent_id
+ * @property integer $level
  * @property integer $user_ref_id
  *
  * @property AuthAssignment[] $authAssignments
  * @property AuthItem[] $itemNames
- * @property ContentLog[] $contentLogs
- * @property Dealer $dealer
  * @property Site $site
  * @property User $parent
  * @property User $userRef
@@ -57,6 +57,61 @@ class User extends ActiveRecord implements IdentityInterface
     const USER_TYPE_SP = 2;
     const USER_TYPE_DEALER = 3;
     const USER_ACCESS_SP = '__user_access_sp';
+
+    const USER_LEVEL_ADMIN = 1;
+    const USER_LEVEL_TKKHACHHANGADMIN = 2;
+    const USER_LEVEL_TKDAILYADMIN = 3;
+    const USER_LEVEL_TKTHANHVIEN_KHADMIN = 4;
+    const USER_LEVEL_TKDAILYCAPDUOI = 5;
+    const USER_LEVEL_TKKHACHHANG_DAILY = 6;
+    const USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI = 7;
+    const USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY = 8;
+    const USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI = 9;
+
+
+    public static function user_role_admin()
+    {
+        return [
+            self::USER_LEVEL_TKDAILYADMIN => 'Tài khoản đại lý',
+            self::USER_LEVEL_TKKHACHHANGADMIN => 'Tài khoản khách hàng admin',
+        ];
+    }
+
+    public static function user_role_daily()
+    {
+        return [
+            self::USER_LEVEL_TKDAILYCAPDUOI => 'Tài khoản đại lý cấp dưới',
+            self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng đại lý cấp dưới'
+        ];
+    }
+
+    public static function user_role_khachhangadmin()
+    {
+        return [
+            self::USER_LEVEL_TKTHANHVIEN_KHADMIN => 'Tài khoản thành viên của khách hàng admin'
+        ];
+    }
+
+    public static function user_role_dailycapduoi()
+    {
+        return [
+            self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng của đại lý cấp dưới'
+        ];
+    }
+
+    public static function user_role_khachhangdaily()
+    {
+        return [
+            self::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY => 'Tài khoản thành viên của khách hàng đại lý'
+        ];
+    }
+
+    public static function user_role_khachhangdailycapduoi()
+    {
+        return [
+            self::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI => 'Tài khoản thành viên của khách hàng đại lý cấp dưới'
+        ];
+    }
 
     public static $user_types = [
         self::USER_TYPE_ADMIN => 'Admin',
@@ -90,12 +145,14 @@ class User extends ActiveRecord implements IdentityInterface
                 [
                     'role',
                     'status',
+                    'level',
                     'created_at',
                     'updated_at',
                     'type',
                     'site_id',
                     'parent_id',
-                    'user_ref_id'
+                    'user_ref_id',
+                    'created_by'
                 ],
                 'integer'
             ],
@@ -103,18 +160,18 @@ class User extends ActiveRecord implements IdentityInterface
             [['username', 'password_hash', 'password_reset_token', 'email', 'fullname', 'access_login_token'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
-            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE,self::STATUS_DELETED]],
-            ['email', 'email','message' => 'Email không đúng định dạng'],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
+            ['email', 'email', 'message' => 'Email không đúng định dạng'],
 //            ['email', 'unique'],
 //            ['username', 'unique','message' => 'Tên tài khoản đã tồn tại trong hệ thống'],
-            ['username', 'validateUnique','on' => 'create'],
+            ['username', 'validateUnique', 'on' => 'create'],
             //cuongvm
-            [['old_password'],'required','on'=>'change-password','message' => '{attribute} không được phép để trống'],
-            ['password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' =>'{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
-            ['old_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' =>'{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
-            ['confirm_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' =>'{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
-            ['new_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' =>'{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
-            [['confirm_password', 'password'], 'required', 'on' => 'create','message' => '{attribute} không được phép để trống'],
+            [['old_password'], 'required', 'on' => 'change-password', 'message' => '{attribute} không được phép để trống'],
+            ['password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' => '{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
+            ['old_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' => '{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
+            ['confirm_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' => '{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
+            ['new_password', 'string', 'min' => '8', 'max' => '30', 'tooShort' => '{attribute} không hợp lệ. {attribute} ít nhất 8 ký tự', 'tooLong' => '{attribute} không hợp lệ. {attribute} ít nhất 8-30 ký tự'],
+            [['confirm_password', 'password'], 'required', 'on' => 'create', 'message' => '{attribute} không được phép để trống'],
             [
                 ['confirm_password'],
                 'compare',
@@ -136,8 +193,8 @@ class User extends ActiveRecord implements IdentityInterface
                 'message' => 'Xác nhận mật khẩu không đúng.',
                 'on' => 'reset-password'
             ],
-            [['new_password', 'confirm_password'], 'required', 'on' => 'change-password','message' => '{attribute} không được phép để trống'],
-            [['new_password', 'confirm_password'], 'required', 'on' => 'reset-password','message' => '{attribute} không được phép để trống'],
+            [['new_password', 'confirm_password'], 'required', 'on' => 'change-password', 'message' => '{attribute} không được phép để trống'],
+            [['new_password', 'confirm_password'], 'required', 'on' => 'reset-password', 'message' => '{attribute} không được phép để trống'],
         ];
     }
 
@@ -145,7 +202,7 @@ class User extends ActiveRecord implements IdentityInterface
     {
         if (!$this->hasErrors()) {
             $user = User::findUser($this->username);
-            if($user){
+            if ($user) {
                 $this->addError($attribute, 'Tên tài khoản đã tồn tại trong hệ thống');
             }
         }
@@ -200,6 +257,7 @@ class User extends ActiveRecord implements IdentityInterface
             'confirm_password' => Yii::t('app', ' Xác nhận mật khẩu'),
             'new_password' => Yii::t('app', 'Mật khẩu mới'),
             'old_password' => Yii::t('app', 'Mật khẩu cũ'),
+            'level'=> Yii::t('app','Chức danh')
         ];
     }
 
@@ -232,7 +290,8 @@ class User extends ActiveRecord implements IdentityInterface
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getUserRef(){
+    public function getUserRef()
+    {
         return $this->hasOne(User::className(), ['id' => 'user_ref_id']);
     }
 
@@ -286,8 +345,9 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public static function findUser($username)
     {
-        return static::findOne(['username' => $username, 'status' => [self::STATUS_ACTIVE,self::STATUS_INACTIVE]]);
+        return static::findOne(['username' => $username, 'status' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE]]);
     }
+
     /**
      * Finds user by username
      *
@@ -308,19 +368,20 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $sp = static::find()
             ->where(['username' => $username, 'status' => self::STATUS_ACTIVE])
-            ->andWhere(['type'=>self::USER_TYPE_SP])->one();
+            ->andWhere(['type' => self::USER_TYPE_SP])->one();
         if (!$sp) {
             $sp = static::find()
                 ->where(['username' => $username, 'status' => self::STATUS_INACTIVE])
-                ->andWhere(['type'=>self::USER_TYPE_SP])->one();
+                ->andWhere(['type' => self::USER_TYPE_SP])->one();
         }
         return $sp;
     }
+
     public static function findCPByUsername($username)
     {
         return static::find()
             ->where(['username' => $username, 'status' => self::STATUS_ACTIVE])
-            ->andWhere(['type'=>self::USER_TYPE_DEALER])->one();
+            ->andWhere(['type' => self::USER_TYPE_DEALER])->one();
     }
 
     /**
@@ -468,7 +529,8 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
-    public function generateAccessLoginToken(){
+    public function generateAccessLoginToken()
+    {
         $this->access_login_token = Yii::$app->security->generateRandomString() . '_' . time();
     }
 
@@ -508,11 +570,11 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAuthItemProvider($acc_type = null)
     {
-        if($acc_type){
+        if ($acc_type) {
             return new ActiveDataProvider([
                 'query' => $this->getAuthItems()->andWhere(['acc_type' => $acc_type])
             ]);
-        }else{
+        } else {
             return new ActiveDataProvider([
                 'query' => $this->getAuthItems()
             ]);
@@ -636,8 +698,8 @@ class User extends ActiveRecord implements IdentityInterface
         if ($this->id != $model->parent_id ||
             $this->site_id != $model->site_id ||
             $this->dealer_id != $model->dealer_id ||
-            $this->type != $model->type)
-        {
+            $this->type != $model->type
+        ) {
             return false;
         } else {
             return true;
@@ -646,17 +708,18 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function haveAccessSP()
     {
-        if($this->type == User::USER_TYPE_SP){
+        if ($this->type == User::USER_TYPE_SP) {
             return true;
         }
         $roles = $this->getAuthItemProvider(AuthItem::ACC_TYPE_SP);
-        if($roles->count > 0){
+        if ($roles->count > 0) {
             return true;
         }
         return false;
     }
 
-    public static function getUsernameById($user_id) {
+    public static function getUsernameById($user_id)
+    {
         $user = User::findOne($user_id);
         if ($user) {
             return $user->username;
