@@ -86,7 +86,7 @@ class TemplateSmsSearch extends TemplateSms
 
         $query->andFilterWhere(['like', 'lower(template_name)',strtolower($this->template_name)])
             ->andFilterWhere(['like', 'lower(template_content)', strtolower($this->template_content)]);
-        $query->orderBy(['created_at'=>SORT_ASC]);
+        $query->orderBy(['created_at'=>SORT_DESC]);
         return $dataProvider;
     }
 }

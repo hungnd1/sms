@@ -6,15 +6,7 @@ $config = [
     'language' => 'vi', /**  set target language to be vi */
     'aliases' => [
         '@file_downloads' => 'static/file_dowloads',
-        '@cat_image' => 'static/content_images',
-        '@content_images' => 'static/content_images',
-        '@site' => '@sp',
-        '@dealer' => '@cp',
-        '@service_group_icon' => 'static/service_group_icon',
-        '@storage_location' => '/storage/tvod2-backend',
-        '@video_storage' => 'video',
-        '@excel_folder' => "uploaded_excels",
-        '@subtitle' => 'static/content_images/subtitle',
+        '@example' => 'static/example',
         '@default_site_id' => 1,
     ],
     'components' => [

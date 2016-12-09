@@ -2,11 +2,12 @@
 
 use yii\helpers\Html;
 
+
 /* @var $this yii\web\View */
 /* @var $model common\models\TemplateSms */
 
-$this->title = 'Cập nhật Template SMS';
-$this->params['breadcrumbs'][] = ['label' => 'Tin nhắn mẫu ', 'url' => Yii::$app->urlManager->createUrl(['/template-sms/index'])];
+$this->title = 'Tải tin nhắn mẫu';
+$this->params['breadcrumbs'][] = ['label' => 'Tin nhắn mẫu', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="row">
@@ -15,11 +16,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="portlet box green">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i>Cập nhật Template SMS
+                    <i class="fa fa-gift"></i>Tải tin nhắn mẫu
                 </div>
             </div>
             <div class="portlet-body form">
-                <?= $this->render('_form', [
+                <?= $this->render('form', [
                     'model' => $model,
                 ]) ?>
             </div>

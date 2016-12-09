@@ -26,6 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 <div class="portlet-body">
                     <p>
                         <?php if(!Yii::$app->params['tvod1Only']) echo Html::a("Thêm tin nhắn mẫu ", Yii::$app->urlManager->createUrl(['/template-sms/create']), ['class' => 'btn btn-success']) ?>
+                        <?php if(!Yii::$app->params['tvod1Only']) echo Html::a("Tải tin nhắn mẫu ", Yii::$app->urlManager->createUrl(['/template-sms/upload']), ['class' => 'btn btn-success']) ?>
                     </p>
 
                     <?= GridView::widget([

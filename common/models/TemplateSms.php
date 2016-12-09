@@ -28,6 +28,8 @@ class TemplateSms extends \yii\db\ActiveRecord
     const STATUS_ACTIVE = 10;
     const STATUS_INACTIVE = 0;
 
+    public $file;
+
     /**
      * @inheritdoc
      */
@@ -36,7 +38,7 @@ class TemplateSms extends \yii\db\ActiveRecord
         return [
             [['template_content','template_name'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
             [['template_date', 'status', 'created_at', 'updated_at', 'template_createby'], 'integer'],
-            [['template_name', 'template_content'], 'string', 'max' => 500],
+            [['template_name', 'template_content','file'], 'string', 'max' => 500],
         ];
     }
 

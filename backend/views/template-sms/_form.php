@@ -83,9 +83,33 @@ use yii\helpers\Html;
         function insertEmoticonAtTextareaCursor(ID,text) {
             ID="insertPattern";
             var message = $('textarea#templatesms-template_content').val();
-            $("textarea#templatesms-template_content").val(text);
-            if(message.length > 0){
-                $("textarea#templatesms-template_content").val(message+text);
+            var input = document.getElementById('templatesms-template_content'); // or $('#myinput')[0]
+            var strPos = 0;
+            var br = ((input.selectionStart || input.selectionStart == '0') ?
+                "ff" : (document.selection ? "ie" : false ) );
+            if (br == "ie") {
+                input.focus();
+                var range = document.selection.createRange();
+                range.moveStart ('character', -input.value.length);
+                strPos = range.text.length;
+            }
+            else if (br == "ff") strPos = input.selectionStart;
+            var front = (input.value).substring(0,strPos);
+            var back = (input.value).substring(strPos,input.value.length);
+            input.value=front+text+back;
+            strPos = strPos + text.length;
+            if (br == "ie") {
+                input.focus();
+                var range = document.selection.createRange();
+                range.moveStart ('character', -input.value.length);
+                range.moveStart ('character', strPos);
+                range.moveEnd ('character', 0);
+                range.select();
+            }
+            else if (br == "ff") {
+                input.selectionStart = strPos;
+                input.selectionEnd = strPos;
+                input.focus();
             }
             countChar();
         }
