@@ -115,15 +115,19 @@ class UserController extends BaseBEController
 
             $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])->all();
             $numbersms_total = 0;
+            $smsbrand_total = 0;
 
-            $smsbrand = Brandname::findOne(['brand_member'=>Yii::$app->user->id]);
+            $smsbrand = Brandname::findAll(['brand_member'=>Yii::$app->user->id]);
+            foreach($smsbrand as $item){
+                $smsbrand_total += $item->number_sms;
+            }
 
             foreach($numbersms as $item){
                 $numbersms_total += $item->number_sms;
             }
             $numbersms_ = $numbersms_total + $model->number_sms;
-            if($numbersms_ > $smsbrand->number_sms ){
-                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand->number_sms));
+            if($numbersms_ > $smsbrand_total ){
+                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand_total));
                 return $this->render('create', [
                     'model' => $model,
                 ]);
