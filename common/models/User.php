@@ -33,6 +33,10 @@ use yii\web\IdentityInterface;
  * @property integer $parent_id
  * @property integer $level
  * @property integer $user_ref_id
+ * @property string $address
+ * @property integer $type_kh
+ * @property integer $number_sms
+ * @property integer $is_send
  *
  * @property AuthAssignment[] $authAssignments
  * @property AuthItem[] $itemNames
@@ -53,6 +57,9 @@ class User extends ActiveRecord implements IdentityInterface
      * 2 - SP
      * 3 - Dealer
      */
+    const TYPE_KH_DOANHNGHIEP = 1;
+    const TYPE_KH_TRUONGHOC = 2;
+
     const USER_TYPE_ADMIN = 1;
     const USER_TYPE_SP = 2;
     const USER_TYPE_DEALER = 3;
@@ -151,13 +158,16 @@ class User extends ActiveRecord implements IdentityInterface
                     'type',
                     'site_id',
                     'parent_id',
+                    'number_sms',
+                    'is_send',
                     'user_ref_id',
-                    'created_by'
+                    'created_by',
+                    'type_kh'
                 ],
                 'integer'
             ],
             ['phone_number', 'string', 'max' => 200],
-            [['username', 'password_hash', 'password_reset_token', 'email', 'fullname', 'access_login_token'], 'string', 'max' => 255],
+            [['username', 'password_hash', 'password_reset_token', 'email', 'fullname', 'address', 'access_login_token'], 'string', 'max' => 255],
             [['auth_key'], 'string', 'max' => 32],
             ['status', 'default', 'value' => self::STATUS_ACTIVE],
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_INACTIVE, self::STATUS_DELETED]],
@@ -257,7 +267,11 @@ class User extends ActiveRecord implements IdentityInterface
             'confirm_password' => Yii::t('app', ' Xác nhận mật khẩu'),
             'new_password' => Yii::t('app', 'Mật khẩu mới'),
             'old_password' => Yii::t('app', 'Mật khẩu cũ'),
-            'level'=> Yii::t('app','Chức danh')
+            'level' => Yii::t('app', 'Chức danh'),
+            'type_kh' => Yii::t('app', 'Kiểu khách hàng'),
+            'address' => Yii::t('app', 'Địa chỉ'),
+            'number_sms' => Yii::t('app','Số tin nhắn'),
+            'is_send' => Yii::t('app','Cấu hình gửi tin')
         ];
     }
 
@@ -630,6 +644,15 @@ class User extends ActiveRecord implements IdentityInterface
         return $lst;
     }
 
+    public static function listTypeKH()
+    {
+        $lst = [
+            self::TYPE_KH_DOANHNGHIEP => 'Doanh nghiệp',
+            self::TYPE_KH_TRUONGHOC => 'Trường học',
+        ];
+        return $lst;
+    }
+
     /**
      * @return int
      */
@@ -677,6 +700,7 @@ class User extends ActiveRecord implements IdentityInterface
         return $lst;
     }
 
+
     /**
      * @return int
      */
@@ -687,6 +711,16 @@ class User extends ActiveRecord implements IdentityInterface
             return $lst[$this->type];
         }
         return $this->type;
+    }
+
+    public function getTypeNameKh()
+    {
+        $lst = self::listTypeKH();
+        if (array_key_exists($this->type_kh, $lst)) {
+            return $lst[$this->type_kh
+            ];
+        }
+        return $this->type_kh;
     }
 
     /**

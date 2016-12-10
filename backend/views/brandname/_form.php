@@ -31,7 +31,9 @@ use yii\helpers\Html;
     <?= $form->field($model, 'price_sms')->textInput(['maxlength' => 500, 'class' => 'input-circle']) ?>
     <?=
     $form->field($model, 'brand_member')->widget(Select2::classname(), [
-        'data' => \yii\helpers\ArrayHelper::map(\common\models\User::find()->andWhere(['status' => \common\models\User::STATUS_ACTIVE])
+        'data' => \yii\helpers\ArrayHelper::map(\common\models\User::find()->andWhere(['brandname.status' => \common\models\User::STATUS_ACTIVE])
+            ->innerJoin('brandname','brandname.brand_member = user.id')
+            ->andWhere('brandname.brand_member is null')
             ->all(), 'id', 'username'),
         'options' => ['placeholder' => 'Chủ sở hữu'],
         'pluginOptions' => [

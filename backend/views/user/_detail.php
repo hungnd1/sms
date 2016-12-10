@@ -21,11 +21,21 @@ use common\models\User;
                 'value' =>  $model->getTypeName(),
             ],
             [
+                'attribute' => 'type_kh',
+                'label' => 'Loại khách hàng',
+                'format' => 'html',
+                'value' =>  $model->getTypeNameKh(),
+            ],
+            [
                 'label' => 'Quyền người dùng',
                 'format' => 'html',
                 'value' =>  $model->getRolesName(),
             ],
             'email:email',
+            'address',
+            'fullname',
+            'phone_number',
+            'number_sms',
 //                        'role',
             [
                 'attribute'=>'status',

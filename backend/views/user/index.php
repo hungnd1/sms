@@ -52,14 +52,46 @@ $this->params['breadcrumbs'][] = $this->title;
                 },
             ],
             [
-                'attribute' => 'email',
-                'width'=>'20%',
+                'attribute' => 'phone_number',
+                'width'=>'15%',
             ],
-//            'auth_key',
-//            'password_hash',
-//            'password_reset_token',
-//             'email:email',
-//             'role',
+            [
+                'attribute' => 'email',
+                'width'=>'15%',
+            ],
+            [
+                'attribute' => 'fullname',
+                'width'=>'10%',
+            ],
+            [
+                'attribute' => 'number_sms',
+                'width'=>'10%',
+            ],
+            [
+                'class' => '\kartik\grid\DataColumn',
+                'attribute'=>'type_kh',
+                'label'=>'Loại khách hàng',
+//                'width'=>'180px',
+                'width'=>'10%',
+                'format'=>'raw',
+                'value' => function ($model, $key, $index, $widget) {
+                    /**
+                     * @var $model \common\models\User
+                     */
+                    if($model->type_kh == User::TYPE_KH_DOANHNGHIEP){
+                        return '<span class="label label-success">'.$model->getTypeNameKh().'</span>';
+                    }else{
+                        return '<span class="label label-danger">'.$model->getTypeNameKh().'</span>';
+                    }
+
+                },
+                'filter' => User::listTypeKH(),
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'pluginOptions' => ['allowClear' => true],
+                ],
+                'filterInputOptions' => ['placeholder' => "Tất cả"],
+            ],
             [
                 'class' => '\kartik\grid\DataColumn',
                 'attribute'=>'status',
@@ -91,22 +123,6 @@ $this->params['breadcrumbs'][] = $this->title;
             // 'site_id',
             // 'content_provider_id',
             // 'parent_id',
-            [
-                'format' => 'html',
-                'label' => 'Nhóm quyền',
-//                'vAlign' => 'middle',
-                'value' => function ($model, $key, $index, $widget) {
-                    /**
-                     * @var $model \common\models\User
-                     */
-                    $e = new Yii2Auth();
-                    if($e->superAdmin != $model->username){
-                        return $model->getRolesName();
-                    }else{
-                        return "Supper Admin";
-                    }
-                },
-            ],
 
             ['class' => 'kartik\grid\ActionColumn',
                 'template'=>'{view}{update}{delete}',

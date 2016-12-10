@@ -5,6 +5,7 @@ namespace backend\controllers;
 use api\helpers\Message;
 use common\components\ActionLogTracking;
 use common\components\ActionProtectSuperAdmin;
+use common\models\Brandname;
 use common\models\UserActivity;
 use kartik\widgets\ActiveForm;
 use Yii;
@@ -108,7 +109,22 @@ class UserController extends BaseBEController
             $model->password_reset_token = $model->password;
             $model->setPassword($model->password);
             $model->generateAuthKey();
-            if(!$model->save()){
+
+            $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])->all();
+            $numbersms_total = 0;
+
+            $smsbrand = Brandname::findOne(['brand_member'=>Yii::$app->user->id]);
+
+            foreach($numbersms as $item){
+                $numbersms_total += $item->number_sms;
+            }
+            $numbersms_ = $numbersms_total + $model->number_sms;
+            if($numbersms_ > $smsbrand->number_sms ){
+                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand->number_sms));
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }else if(!$model->save()){
                 Yii::$app->session->setFlash('error','Thêm người dùng không thành công');
                 return $this->render('create', [
                     'model' => $model,
@@ -143,8 +159,23 @@ class UserController extends BaseBEController
         if ($model->load(Yii::$app->request->post()) ) {
             /** Set lại username */
             $model->username = $username;
-            if($model->update()){
-                Yii::$app->session->setFlash('success', Message::MSG_UPDATE_PROFILE);
+            $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])
+                ->andWhere('id <> :id',[':id'=>$model->id])->all();
+            $numbersms_total = 0;
+
+            $smsbrand = Brandname::findOne(['brand_member'=>Yii::$app->user->id]);
+
+            foreach($numbersms as $item){
+                $numbersms_total += $item->number_sms;
+            }
+            $numbersms_ = $numbersms_total + $model->number_sms;
+            if($numbersms_ > $smsbrand->number_sms ){
+                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand->number_sms));
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }else if($model->update()){
+                Yii::$app->session->setFlash('success', 'Cập nhật người dùng thành công');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
             Yii::$app->getSession()->setFlash('error', Message::MSG_FAIL);

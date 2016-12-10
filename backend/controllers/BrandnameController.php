@@ -84,8 +84,16 @@ class BrandnameController extends BaseBEController
             $model->brand_hash_token = $model->brand_password;
             $model->setPassword($model->brand_password);
             $model->expired_at = strtotime($model->expired_at);
-            if (!$model->save()) {
-                Yii::$app->session->setFlash('error', 'Thêm brandname thành công');
+            $brand_name = Brandname::findOne(['brand_member'=>$model->brand_member]);
+            if($brand_name){
+                $model->expired_at = date('d-m-Y', $model->expired_at);
+                Yii::$app->session->setFlash('error', 'Người dùng đã có brandname');
+                return $this->render('create', [
+                    'model' => $model,
+                ]);
+            }else if (!$model->save()) {
+                $model->expired_at = date('d-m-Y', $model->expired_at);
+                Yii::$app->session->setFlash('error', 'Thêm brandname khong thành công');
                 return $this->render('create', [
                     'model' => $model,
                 ]);

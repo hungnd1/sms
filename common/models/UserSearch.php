@@ -17,7 +17,7 @@ class UserSearch extends User
     public function rules()
     {
         return [
-            [['id', 'role', 'status', 'created_at', 'updated_at', 'type', 'site_id', 'dealer_id', 'parent_id'], 'integer'],
+            [['id', 'role', 'status','type_kh', 'created_at', 'updated_at', 'type', 'site_id', 'dealer_id', 'parent_id'], 'integer'],
             [['username', 'fullname', 'phone_number', 'auth_key', 'password_hash', 'password_reset_token', 'email'], 'safe'],
         ];
     }
@@ -41,11 +41,7 @@ class UserSearch extends User
     public function search($params, $childUser = false)
     {
         $query = User::find();
-        if (Yii::$app->user->identity->level != User::USER_LEVEL_ADMIN) {
             $query->andWhere(['created_by' => Yii::$app->user->id]);
-        }else{
-            $query->andWhere('created_by is not null');
-        }
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -68,6 +64,7 @@ class UserSearch extends User
             'id' => $this->id,
             'role' => $this->role,
             'status' => $this->status,
+            'type_kh' => $this->type_kh,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'type' => $this->type,
@@ -80,9 +77,9 @@ class UserSearch extends User
             $query->andWhere(['is', 'parent_id', null]);
         }
 
-        $query->andFilterWhere(['like', 'username', $this->username])
-            ->andFilterWhere(['like', 'fullname', $this->fullname])
-            ->andFilterWhere(['like', 'phone_number', $this->phone_number])
+        $query->andFilterWhere(['like', 'lower(username)', strtolower($this->username)])
+            ->andFilterWhere(['like', 'lower(fullname)', strtolower($this->fullname)])
+            ->andFilterWhere(['like', 'lower(phone_number)', strtolower($this->phone_number)])
             ->andFilterWhere(['like', 'auth_key', $this->auth_key])
             ->andFilterWhere(['like', 'password_hash', $this->password_hash])
             ->andFilterWhere(['like', 'password_reset_token', $this->password_reset_token])
