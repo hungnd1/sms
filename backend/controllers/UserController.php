@@ -47,13 +47,15 @@ class UserController extends BaseBEController
                 'model_type_default' => UserActivity::ACTION_TARGET_TYPE_USER,
                 'post_action' => [
                     ['action' => 'create', 'accept_ajax' => false],
+                    ['action' => 'send', 'accept_ajax' => true],
+                    ['action' => 'config', 'accept_ajax' => true],
                     ['action' => 'delete', 'accept_ajax' => false],
                     ['action' => 'update', 'accept_ajax' => false],
                     ['action' => 'change-password', 'accept_ajax' => false],
                     ['action' => 'add-auth-item', 'accept_ajax' => true],
                     ['action' => 'revoke-auth-item', 'accept_ajax' => true]
                 ],
-                'only' => ['create', 'delete', 'update', 'change-password', 'add-auth-item', 'revoke-auth-item']
+                'only' => ['create', 'delete', 'update', 'change-password', 'add-auth-item', 'revoke-auth-item','send','config']
             ],
         ]);
     }
@@ -108,6 +110,7 @@ class UserController extends BaseBEController
             $model->created_by = Yii::$app->user->id;
             $model->password_reset_token = $model->password;
             $model->setPassword($model->password);
+            $model->is_send = 0;
             $model->generateAuthKey();
 
             $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])->all();
@@ -462,4 +465,45 @@ class UserController extends BaseBEController
         ];
     }
 
+    public function actionSend(){
+        if (isset($_POST['arr_member'])){
+                echo '{"status":"ok"}';
+        }else{
+            echo '{"status":"nok"}';
+        }
+    }
+
+    public function actionConfig(){
+        if (isset($_POST['arr_member'])){
+            $is_kh = 1;
+            for ($i = 0; $i < sizeof($_POST['arr_member']); $i++) {
+                $user = User::find()->andWhere(['id'=>$_POST['arr_member'][$i]])->one();
+                if($user->level != User::USER_LEVEL_TKKHACHHANG_DAILY && $user->level != User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI
+                    && $user->level != User::USER_LEVEL_TKKHACHHANGADMIN && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHADMIN
+                    && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI
+                ){
+                    $is_kh = 0;
+                }
+            }
+            if($is_kh == 1){
+                for ($i = 0; $i < sizeof($_POST['arr_member']); $i++) {
+                    $user = User::find()->andWhere(['id'=>$_POST['arr_member'][$i]])->one();
+                    if($user->is_send == 1){
+                        $user->is_send = 0;
+                    }else{
+                        $user->is_send = 1;
+                    }
+                    $user->updated_at = time();
+                    $user->save(false);
+                }
+            }
+            if($is_kh == 1){
+                echo '{"status":"ok"}';
+            }else{
+                echo '{"status":"nok"}';
+            }
+        }else{
+            echo '{"status":"nok"}';
+        }
+    }
 }

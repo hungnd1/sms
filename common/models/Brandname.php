@@ -96,4 +96,24 @@ class Brandname extends \yii\db\ActiveRecord
     {
         return (new \yii\i18n\Formatter())->asInteger($number);
     }
+
+
+    public static function getOwner($brand_member = null){
+
+            $brandMember = Brandname::findAll(['status'=>Brandname::STATUS_ACTIVE]);
+            $arr = '';
+            foreach($brandMember as $item){
+                if($brand_member){
+                    if($item->brand_member != $brand_member){
+                        $arr .= $item->brand_member.',';
+                    }
+                }else{
+                    $arr .= $item->brand_member.',';
+                }
+            }
+            $listId = rtrim($arr,',');
+            $user = User::find()->andWhere('id not in ('.$listId.')')
+                ->andWhere(['status'=>User::STATUS_ACTIVE])->all();
+            return $user;
+    }
 }

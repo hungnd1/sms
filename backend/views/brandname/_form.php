@@ -29,17 +29,24 @@ use yii\helpers\Html;
     <?= $form->field($model, 'brand_password')->passwordInput(['maxlength' => 500, 'class' => 'input-circle']) ?>
     <?= $form->field($model, 'number_sms')->textInput(['maxlength' => 500, 'class' => 'input-circle']) ?>
     <?= $form->field($model, 'price_sms')->textInput(['maxlength' => 500, 'class' => 'input-circle']) ?>
-    <?=
-    $form->field($model, 'brand_member')->widget(Select2::classname(), [
-        'data' => \yii\helpers\ArrayHelper::map(\common\models\User::find()->andWhere(['brandname.status' => \common\models\User::STATUS_ACTIVE])
-            ->innerJoin('brandname','brandname.brand_member = user.id')
-            ->andWhere('brandname.brand_member is null')
-            ->all(), 'id', 'username'),
-        'options' => ['placeholder' => 'Chủ sở hữu'],
-        'pluginOptions' => [
-            'allowClear' => true
-        ],
-    ]);
+    <?php
+    if($model->isNewRecord) {
+        echo $form->field($model, 'brand_member')->widget(Select2::classname(), [
+            'data' => \yii\helpers\ArrayHelper::map(\common\models\Brandname::getOwner(), 'id', 'username'),
+            'options' => ['placeholder' => 'Chủ sở hữu'],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]);
+    }else{
+        echo $form->field($model, 'brand_member')->widget(Select2::classname(), [
+            'data' => \yii\helpers\ArrayHelper::map(\common\models\Brandname::getOwner($model->brand_member), 'id', 'username'),
+            'options' => ['placeholder' => 'Chủ sở hữu'],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ]);
+    }
     ?>
     <?php
     echo $form->field($model, 'expired_at')->widget(\kartik\date\DatePicker::className(), [

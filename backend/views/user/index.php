@@ -27,19 +27,25 @@ $this->params['breadcrumbs'][] = $this->title;
                 </div>
             </div>
             <div class="portlet-body">
-                <p><?= Html::a('Tạo người dùng', ['create'], ['class' => 'btn btn-success']) ?> </p>
+                <p><?= Html::a('Tạo người dùng', ['create'], ['class' => 'btn btn-success']) ?>
+                <?= Html::button('Gửi thông tin', ['class' => 'btn btn-success','onclick'=>'move();']) ?>
+                <?= Html::button('Cấu hình gửi tin', ['class' => 'btn btn-success','onclick'=>'config();']) ?> </p>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             [
+                'class' => 'kartik\grid\CheckboxColumn',
+                'headerOptions' => ['class' => 'kartik-sheet-style'],
+            ],
+            [
                 'class' => 'yii\grid\SerialColumn',
             ],
             [
                 'attribute' => 'username',
                 'format' => 'raw',
-                'width'=>'20%',
+                'width'=>'10%',
 //                'vAlign' => 'middle',
                 'value' => function ($model, $key, $index, $widget) {
                     /**
@@ -56,12 +62,67 @@ $this->params['breadcrumbs'][] = $this->title;
                 'width'=>'15%',
             ],
             [
-                'attribute' => 'email',
+                'class' => '\kartik\grid\DataColumn',
+                'attribute' => 'level',
+                'format'=>'raw',
                 'width'=>'15%',
+                'value' => function ($model, $key, $index, $widget) {
+                    /**
+                     * @var $model \common\models\User
+                     */
+                    if($model->level == User::USER_LEVEL_ADMIN){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKKHACHHANG_DAILY){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKDAILYADMIN){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKDAILYCAPDUOI){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKTHANHVIEN_KHADMIN){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKKHACHHANGADMIN){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }elseif($model->level == User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI){
+                        return '<span class="label label-success">'.$model->getTypeNameRole().'</span>';
+                    }
+
+                },
+                'filter' => User::all_role_level(Yii::$app->user->identity->level),
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'pluginOptions' => ['allowClear' => true],
+                ],
+                'filterInputOptions' => ['placeholder' => "Tất cả"],
             ],
             [
                 'attribute' => 'fullname',
                 'width'=>'10%',
+            ],
+            [
+                'class' => '\kartik\grid\DataColumn',
+                'attribute' => 'is_send',
+                'width'=>'10%',
+                'value' => function($model){
+                    /**
+                     * @var $model \common\models\User
+                     */
+                    if($model->is_send == User::IS_SEND_OK){
+                        return 'Cho phép gửi tin';
+                    }else{
+                        return 'Không cho phép gửi tin';
+                    }
+                },
+                'filter' => User::listIsSend(),
+                'filterType' => GridView::FILTER_SELECT2,
+                'filterWidgetOptions' => [
+                    'pluginOptions' => ['allowClear' => true],
+                ],
+                'filterInputOptions' => ['placeholder' => "Tất cả"],
+
             ],
             [
                 'attribute' => 'number_sms',
@@ -156,3 +217,80 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     </div>
 </div>
+
+<script>
+    function move(){
+        var cboxes = document.getElementsByName('selection[]');
+        var len = cboxes.length;
+        var arr = [];
+        for (var i=0; i<len; i++) {
+            if(cboxes[i].checked) {
+                arr.push(cboxes[i].value);
+            }
+        }
+        if(arr.length == 0){
+            alert('Bạn chưa chọn tài khoản nào');
+            return;
+        }else{
+            $.ajax({
+                type:'POST',
+                url:'<?= Url::toRoute(['user/send']) ?>',
+                beforeSend: function(){
+                    //code;
+                },
+                data:{arr_member:arr},
+                success: function(data){
+                    var responseJSON = jQuery.parseJSON(data);
+                    if(responseJSON.status=="ok"){
+                        alert('Gửi tin nhắn thành công.');
+                        location.reload();
+                    } else{
+                        alert('Gửi tin nhắn thất bại');
+                        location.reload();
+                    }
+                }
+            });
+        }
+        console.log(arr);
+
+
+    }
+
+    function config(){
+        var cboxes = document.getElementsByName('selection[]');
+        var len = cboxes.length;
+        var arr = [];
+        for (var i=0; i<len; i++) {
+            if(cboxes[i].checked) {
+                arr.push(cboxes[i].value);
+            }
+        }
+        if(arr.length == 0){
+            alert('Bạn chưa chọn tài khoản nào');
+            return;
+        }else{
+            $.ajax({
+                type:'POST',
+                url:'<?= Url::toRoute(['user/config']) ?>',
+                beforeSend: function(){
+                    //code;
+                },
+                data:{arr_member:arr},
+                success: function(data){
+                    var responseJSON = jQuery.parseJSON(data);
+                    if(responseJSON.status=="ok"){
+                        alert('Cấu hình thành công');
+                        location.reload();
+                    }
+                    else{
+                        alert('Chỉ được phép cấu hình tài khoản khách hàng hoặc tài khoản thành viên');
+                        location.reload();
+                    }
+                }
+            });
+        }
+        console.log(arr);
+
+
+    }
+</script>

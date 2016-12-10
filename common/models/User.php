@@ -52,6 +52,9 @@ class User extends ActiveRecord implements IdentityInterface
     const STATUS_ACTIVE = 10;
     const STATUS_INACTIVE = 0;
 
+    const IS_SEND_OK = 1;
+    const IS_SEND_NOK = 0;
+
     /**
      *  1 - Admin
      * 2 - SP
@@ -75,6 +78,49 @@ class User extends ActiveRecord implements IdentityInterface
     const USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY = 8;
     const USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI = 9;
 
+
+    public static function all_role(){
+        return [
+            self::USER_LEVEL_TKDAILYADMIN => 'Tài khoản đại lý',
+            self::USER_LEVEL_TKKHACHHANGADMIN => 'Tài khoản khách hàng admin',
+            self::USER_LEVEL_TKDAILYCAPDUOI => 'Tài khoản đại lý cấp dưới',
+            self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng đại lý cấp dưới',
+            self::USER_LEVEL_TKTHANHVIEN_KHADMIN => 'Tài khoản thành viên của khách hàng admin',
+            self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng của đại lý cấp dưới',
+            self::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY => 'Tài khoản thành viên của khách hàng đại lý',
+            self::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI => 'Tài khoản thành viên của khách hàng đại lý cấp dưới'
+        ];
+    }
+
+    public static function all_role_level($level){
+        if($level == User::USER_LEVEL_ADMIN){
+            return [
+                self::USER_LEVEL_TKDAILYADMIN => 'Tài khoản đại lý',
+                self::USER_LEVEL_TKKHACHHANGADMIN => 'Tài khoản khách hàng admin',
+            ];
+        }elseif($level == User::USER_LEVEL_TKDAILYADMIN){
+            return [
+                self::USER_LEVEL_TKDAILYCAPDUOI => 'Tài khoản đại lý cấp dưới',
+                self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng đại lý cấp dưới'
+            ];
+        }elseif($level == User::USER_LEVEL_TKKHACHHANGADMIN){
+            return [
+                self::USER_LEVEL_TKTHANHVIEN_KHADMIN => 'Tài khoản thành viên của khách hàng admin'
+            ];
+        }elseif($level == User::USER_LEVEL_TKDAILYCAPDUOI){
+            return [
+                self::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI => 'Tài khoản khách hàng của đại lý cấp dưới'
+            ];
+        }elseif($level == User::USER_LEVEL_TKKHACHHANG_DAILY){
+            return [
+                self::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY => 'Tài khoản thành viên của khách hàng đại lý'
+            ];
+        }elseif($level == User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI){
+            return [
+                self::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI => 'Tài khoản thành viên của khách hàng đại lý cấp dưới'
+            ];
+        }
+    }
 
     public static function user_role_admin()
     {
@@ -147,7 +193,7 @@ class User extends ActiveRecord implements IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'auth_key', 'password_hash', 'email', 'status'], 'required'], // bỏ  required phone_number
+            [['username', 'auth_key','phone_number', 'password_hash', 'email', 'status'], 'required'], // bỏ  required phone_number
             [
                 [
                     'role',
@@ -205,6 +251,12 @@ class User extends ActiveRecord implements IdentityInterface
             ],
             [['new_password', 'confirm_password'], 'required', 'on' => 'change-password', 'message' => '{attribute} không được phép để trống'],
             [['new_password', 'confirm_password'], 'required', 'on' => 'reset-password', 'message' => '{attribute} không được phép để trống'],
+            [
+                'phone_number',
+//                'match', 'pattern' => '/^0[0-9]$/',
+                'match', 'pattern' => '/^(0)\d{9,10}$/',
+                'message' => 'Số điện thoại không hợp lệ - Định dạng số điện thoại bắt đầu với số 0, ví dụ 0912345678, 012312341234'
+            ],
         ];
     }
 
@@ -653,6 +705,15 @@ class User extends ActiveRecord implements IdentityInterface
         return $lst;
     }
 
+    public static function listIsSend()
+    {
+        $lst = [
+            self::IS_SEND_OK => 'Cho phép gửi tin',
+            self::IS_SEND_NOK => 'Không cho phép gửi tin',
+        ];
+        return $lst;
+    }
+
     /**
      * @return int
      */
@@ -711,6 +772,15 @@ class User extends ActiveRecord implements IdentityInterface
             return $lst[$this->type];
         }
         return $this->type;
+    }
+
+    public function getTypeNameRole(){
+        $lst = self::all_role();
+        if (array_key_exists($this->level, $lst)) {
+            return $lst[$this->level
+            ];
+        }
+        return $this->level;
     }
 
     public function getTypeNameKh()
