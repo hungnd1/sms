@@ -44,7 +44,7 @@ $formId = $form->id;
         <?= $form->field($model, 'confirm_password')->passwordInput(['placeholder' => 'Nhập lại mật khẩu']) ?>
         <?= $form->field($model,'address') ->textInput(['placeholder'=>'Địa chỉ','maxlength'=>'200'])?>
         <?= $form->field($model,'phone_number') ->textInput(['placeholder'=>'Số điện thoại','maxlength'=>'11'])?>
-        <?= $form->field($model,'number_sms') ->textInput(['placeholder'=>'Số tin nhắn tối đa','maxlength'=>'11'])?>
+        <?= $form->field($model,'number_sms') ->textInput(['placeholder'=>'Số tin nhắn tối đa','maxlength'=>'12'])?>
         <?= $form->field($model, 'status')->dropDownList(User::listStatus()) ?>
         <?= $form->field($model, 'type_kh')->dropDownList(User::listTypeKH()) ?>
         <?php

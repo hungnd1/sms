@@ -5,12 +5,12 @@ namespace common\models;
 use Yii;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
-use common\models\Brandname;
+use common\models\Contact;
 
 /**
- * BrandnameSearch represents the model behind the search form about `common\models\Brandname`.
+ * ContactSearch represents the model behind the search form about `common\models\Contact`.
  */
-class BrandnameSearch extends Brandname
+class ContactSearch extends Contact
 {
     /**
      * @inheritdoc
@@ -18,9 +18,9 @@ class BrandnameSearch extends Brandname
     public function rules()
     {
         return [
-            [['id', 'status', 'created_by'], 'integer'],
-            [['brandname', 'brand_username', 'brand_password', 'brand_hash_token'], 'safe'],
-            [['created_at','updated_at','expired_at'],'string']
+            [['id', 'status'], 'integer'],
+            [['contact_name'], 'safe'],
+            [[ 'created_at', 'updated_at'], 'string'],
         ];
     }
 
@@ -40,9 +40,14 @@ class BrandnameSearch extends Brandname
      *
      * @return ActiveDataProvider
      */
-    public function search($params)
+    public function search($params,$id)
     {
-        $query = Brandname::find()->andWhere(['created_by'=>Yii::$app->user->id]);
+        if($id){
+            $query = Contact::find()->andWhere(['created_by'=>Yii::$app->user->id])->andWhere('path is not null');
+        }else{
+            $query = Contact::find()->andWhere(['created_by'=>Yii::$app->user->id])->andWhere('path is  null');
+        }
+
 
         // add conditions that should always apply here
 
@@ -62,9 +67,9 @@ class BrandnameSearch extends Brandname
         $query->andFilterWhere([
             'id' => $this->id,
             'status' => $this->status,
+            'path' => $this->path,
             'created_by' => $this->created_by,
         ]);
-
         if($this->created_at != ''){
             $created_at_arr = explode('/',$this->created_at);
             $date = \DateTime::createFromFormat('Y-m-d H:i:s',$created_at_arr['2'].'-'.$created_at_arr['1'].'-'.$created_at_arr['0'].' 00:00:00');
@@ -85,17 +90,9 @@ class BrandnameSearch extends Brandname
             $query->andFilterWhere(['<=', 'updated_at', $updated_at_end]);
         }
 
-        if($this->expired_at != ''){
-            $created_at_arr = explode('/',$this->expired_at);
-            $date = \DateTime::createFromFormat('Y-m-d H:i:s',$created_at_arr['2'].'-'.$created_at_arr['1'].'-'.$created_at_arr['0'].' 00:00:00');
-            $updated_at     = strtotime($date->format('m/d/Y'));
-            $updated_at_end = $updated_at + (60 * 60 * 24);
 
-            $query->andFilterWhere(['>=', 'expired_at', $updated_at]);
-            $query->andFilterWhere(['<=', 'expired_at', $updated_at_end]);
-        }
-
-        $query->andFilterWhere(['like', 'lower(brandname)', strtolower($this->brandname)]);
+        $query->andFilterWhere(['like', 'lower(contact_name)', strtolower($this->contact_name)])
+            ->andFilterWhere(['like', 'description', $this->description]);
         $query->orderBy(['updated_at'=>SORT_DESC]);
         return $dataProvider;
     }

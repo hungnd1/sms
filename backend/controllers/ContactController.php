@@ -2,18 +2,20 @@
 
 namespace backend\controllers;
 
-use common\models\Brandname;
-use common\models\BrandnameSearch;
+use common\models\ContactSearch_;
 use kartik\widgets\ActiveForm;
 use Yii;
-use yii\filters\VerbFilter;
+use common\models\Contact;
+use common\models\ContactSearch;
+use yii\web\Controller;
 use yii\web\NotFoundHttpException;
+use yii\filters\VerbFilter;
 use yii\web\Response;
 
 /**
- * BrandnameController implements the CRUD actions for Brandname model.
+ * ContactController implements the CRUD actions for Contact model.
  */
-class BrandnameController extends BaseBEController
+class ContactController extends BaseBEController
 {
     /**
      * @inheritdoc
@@ -36,22 +38,27 @@ class BrandnameController extends BaseBEController
     }
 
     /**
-     * Lists all Brandname models.
+     * Lists all Contact models.
      * @return mixed
      */
     public function actionIndex()
     {
-        $searchModel = new BrandnameSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $searchModel = new ContactSearch();
+        $searchModel1 = new ContactSearch_();
+
+        $dataProvider = $searchModel->search(Yii::$app->request->queryParams,null);
+        $dataProviderClass = $searchModel1->search(Yii::$app->request->queryParams,1);
 
         return $this->render('index', [
             'searchModel' => $searchModel,
+            'searchModel1' => $searchModel1,
             'dataProvider' => $dataProvider,
+            'dataProviderClass' => $dataProviderClass,
         ]);
     }
 
     /**
-     * Displays a single Brandname model.
+     * Displays a single Contact model.
      * @param integer $id
      * @return mixed
      */
@@ -63,53 +70,54 @@ class BrandnameController extends BaseBEController
     }
 
     /**
-     * Creates a new Brandname model.
+     * Creates a new Contact model.
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($type = null)
     {
-        $model = new Brandname();
-
+        $model = new Contact();
         $model->setScenario('admin_create_update');
         $post = Yii::$app->request->post();
         if (Yii::$app->request->isAjax && isset($post['ajax']) && $model->load($post)) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
+
         if ($model->load(Yii::$app->request->post())) {
             $model->created_at = time();
             $model->updated_at = time();
             $model->created_by = Yii::$app->user->id;
-            $model->brand_hash_token = $model->brand_password;
-            $model->setPassword($model->brand_password);
-            $model->expired_at = strtotime($model->expired_at);
-//            $brand_name = Brandname::findOne(['brand_member'=>$model->brand_member]);
-//            if($brand_name){
-//                $model->expired_at = date('d-m-Y', $model->expired_at);
-//                Yii::$app->session->setFlash('error', 'Người dùng đã có brandname');
-//                return $this->render('create', [
-//                    'model' => $model,
-//                ]);
-//            }else
-                if (!$model->save()) {
-                $model->expired_at = date('d-m-Y', $model->expired_at);
-                Yii::$app->session->setFlash('error', 'Thêm brandname khong thành công');
+            if (!$model->save()) {
+                Yii::$app->session->setFlash('error', 'Thêm danh bạ không thành công');
+                if($type){
+                    return $this->render('_create', [
+                        'model' => $model,
+                    ]);
+                }else{
+                    return $this->render('create', [
+                        'model' => $model,
+                    ]);
+                }
+
+            }
+            Yii::$app->session->setFlash('success', 'Thêm danh bạ thành công');
+            return $this->redirect(['index']);
+        } else {
+            if($type){
+                return $this->render('_create', [
+                    'model' => $model,
+                ]);
+            }else{
                 return $this->render('create', [
                     'model' => $model,
                 ]);
             }
-            Yii::$app->session->setFlash('success', 'Thêm brandname thành công');
-            return $this->redirect(['index']);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
         }
     }
 
     /**
-     * Updates an existing Brandname model.
+     * Updates an existing Contact model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
      * @return mixed
@@ -117,30 +125,46 @@ class BrandnameController extends BaseBEController
     public function actionUpdate($id)
     {
         $model = $this->findModel($id);
-        $model->expired_at = date('d-m-Y', $model->expired_at);
+        $type = $model->path;
         $model->setScenario('admin_create_update');
         $post = Yii::$app->request->post();
         if (Yii::$app->request->isAjax && isset($post['ajax']) && $model->load($post)) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
+
         if ($model->load(Yii::$app->request->post())) {
             $model->updated_at = time();
-            $model->expired_at = strtotime($model->expired_at);
-            if ($model->save(false)) {
-                \Yii::$app->getSession()->setFlash('success', 'Cập nhật thành công');
-
-                return $this->redirect(['index']);
+            if (!$model->save()) {
+                Yii::$app->session->setFlash('error', 'Cập nhật danh bạ không thành công');
+                if($type){
+                    return $this->render('_update', [
+                        'model' => $model,
+                    ]);
+                }else{
+                    return $this->render('update', [
+                        'model' => $model,
+                    ]);
+                }
             }
+            Yii::$app->session->setFlash('success', 'Cập nhật danh bạ thành công');
+            return $this->redirect(['index']);
         } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
+            if($type){
+                return $this->render('_update', [
+                    'model' => $model,
+                ]);
+            }else{
+                return $this->render('update', [
+                    'model' => $model,
+                ]);
+            }
+
         }
     }
 
     /**
-     * Deletes an existing Brandname model.
+     * Deletes an existing Contact model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
      * @return mixed
@@ -153,15 +177,15 @@ class BrandnameController extends BaseBEController
     }
 
     /**
-     * Finds the Brandname model based on its primary key value.
+     * Finds the Contact model based on its primary key value.
      * If the model is not found, a 404 HTTP exception will be thrown.
      * @param integer $id
-     * @return Brandname the loaded model
+     * @return Contact the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
     protected function findModel($id)
     {
-        if (($model = Brandname::findOne($id)) !== null) {
+        if (($model = Contact::findOne($id)) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

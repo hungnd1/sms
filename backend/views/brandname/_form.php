@@ -51,7 +51,7 @@ use yii\helpers\Html;
     ]);
     ?>
     <?= $form->field($model, 'status')->dropDownList(
-        \common\models\ItemKodi::getListStatus(), ['class' => 'input-circle']
+        \common\models\Brandname::getListStatus(), ['class' => 'input-circle']
     ) ?>
 
     <div class="form-actions">

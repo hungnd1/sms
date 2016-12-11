@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
             <div class="portlet-body">
                 <p>
-                    <?php if(!Yii::$app->params['tvod1Only']) echo Html::a("Tạo brandname ", Yii::$app->urlManager->createUrl(['/brandname/create']), ['class' => 'btn btn-success']) ?>
+                    <?php echo Html::a("Tạo brandname ", Yii::$app->urlManager->createUrl(['/brandname/create']), ['class' => 'btn btn-success']) ?>
                 </p>
 
                 <?= GridView::widget([
@@ -45,6 +45,15 @@ $this->params['breadcrumbs'][] = $this->title;
                                 /** @var $model \common\models\Brandname */
                                 return Html::a($model->brandname, ['view', 'id' => $model->id],['class'=>'label label-primary']);
 
+                            },
+                        ],
+                        'attribute' => 'number_sms',
+                        [
+                            'class' => '\kartik\grid\DataColumn',
+                            'attribute' => 'price_sms',
+                            'value'=>function ($model, $key, $index, $widget) {
+                                /** @var $model \common\models\Brandname */
+                                return \common\models\Brandname::formatNumber($model->price_sms). ' VNĐ';
                             },
                         ],
                         [
@@ -71,7 +80,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'filterType' => GridView::FILTER_DATE,
                             'attribute' => 'expired_at',
                             'value' => function($model){
-                                return date('d-m-Y H:i:s', $model->expired_at);
+                                return date('d-m-Y', $model->expired_at);
                             }
                         ],
                         [
