@@ -7,6 +7,7 @@ $config = [
     'aliases' => [
         '@file_downloads' => 'static/file_dowloads',
         '@example' => 'static/example',
+        '@file_template' => 'static/file_template',
         '@default_site_id' => 1,
     ],
     'components' => [

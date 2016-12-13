@@ -28,190 +28,195 @@ $this->registerJs("Layout.init();");
 <body class="page-header-menu-fixed">
 <?php $this->beginBody() ?>
 <div class="page-header">
-<?php
-NavBar::begin([
-    'brandUrl' => Yii::$app->homeUrl,
-    'brandOptions' => [
-        'class' => 'page-logo'
-    ],
-    'renderInnerContainer' => true,
-    'innerContainerOptions' => [
-        'class' => 'container-fluid'
-    ],
-    'options' => [
-        'class' => 'page-header-top',
-    ],
-    'containerOptions' => [
-        'class' => 'top-menu'
-    ],
-]);
-if (Yii::$app->user->isGuest) {
-    $rightItems[] = [
-        'encode' => false,
-        'label' => '<i class="icon-user"></i><span class="username username-hide-on-mobile">Đăng nhập</span>',
-        'url' => Yii::$app->urlManager->createUrl("site/login"),
+    <?php
+    NavBar::begin([
+        'brandUrl' => Yii::$app->homeUrl,
+        'brandOptions' => [
+            'class' => 'page-logo'
+        ],
+        'renderInnerContainer' => true,
+        'innerContainerOptions' => [
+            'class' => 'container-fluid'
+        ],
         'options' => [
-            'class' => 'dropdown dropdown-user'
+            'class' => 'page-header-top',
         ],
-        'linkOptions' => [
-            'class' => "dropdown-toggle",
+        'containerOptions' => [
+            'class' => 'top-menu'
         ],
-    ];
-} else {
-    $rightItems[] = [
-        'encode' => false,
-        'label' => '<img alt="" class="img-circle" src="' . Url::to("@web/img/haha.png") . '"/>
+    ]);
+    if (Yii::$app->user->isGuest) {
+        $rightItems[] = [
+            'encode' => false,
+            'label' => '<i class="icon-user"></i><span class="username username-hide-on-mobile">Đăng nhập</span>',
+            'url' => Yii::$app->urlManager->createUrl("site/login"),
+            'options' => [
+                'class' => 'dropdown dropdown-user'
+            ],
+            'linkOptions' => [
+                'class' => "dropdown-toggle",
+            ],
+        ];
+    } else {
+        $rightItems[] = [
+            'encode' => false,
+            'label' => '<img alt="" class="img-circle" src="' . Url::to("@web/img/haha.png") . '"/>
 					<span class="username username-hide-on-mobile">
 						 ' . Yii::$app->user->identity->username . '
 					</span>',
-        'options' => ['class' => 'dropdown dropdown-user dropdown-dark'],
-        'linkOptions' => [
-            'data-hover' => "dropdown",
-            'data-close-others' => "true"
+            'options' => ['class' => 'dropdown dropdown-user dropdown-dark'],
+            'linkOptions' => [
+                'data-hover' => "dropdown",
+                'data-close-others' => "true"
+            ],
+            'url' => 'javascript:;',
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-user"></i> Thông tin tài khoàn </a>',
+                    'url' => ['user/info']
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-key"></i> Đăng xuất',
+                    'url' => ['/site/logout'],
+                    'linkOptions' => ['data-method' => 'post'],
+                ],
+            ]
+        ];
+    }
+    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav pull-right'],
+        'items' => $rightItems,
+        'activateParents' => true
+    ]);
+    NavBar::end();
+    ?>
+
+    <?php
+    NavBar::begin([
+        'renderInnerContainer' => true,
+        'innerContainerOptions' => [
+            'class' => 'container-fluid'
         ],
-        'url' => 'javascript:;',
-        'items' => [
-            [
-                'encode' => false,
-                'label' => '<i class="icon-user"></i> Thông tin tài khoàn </a>',
-                'url' => ['user/info']
-            ],
-            [
-                'encode' => false,
-                'label' => '<i class="icon-key"></i> Đăng xuất',
-                'url' => ['/site/logout'],
-                'linkOptions' => ['data-method' => 'post'],
-            ],
+        'options' => [
+            'class' => 'page-header-menu',
+            'style' => 'display: block;'
+        ],
+        'containerOptions' => [
+            'class' => 'hor-menu'
+        ],
+        'toggleBtn' => false
+    ]);
+    $menuItems = [
+
+
+        [
+            'label' => 'Hệ thống',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class=" icon-eyeglasses"></i> Lịch sử tương tác',
+                    'url' => ['user-activity/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-users"></i> QL người dùng',
+                    'url' => ['user/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'label' => 'QL quyền',
+                    'items' => [
+                        [
+                            'encode' => false,
+                            'label' => '<i class="icon-key"></i> QL quyền trang backend',
+                            'url' => ['rbac-backend/permission'],
+                            'require_auth' => true,
+                        ],
+                    ]
+                ],
+                [
+                    'label' => 'QL nhóm quyền',
+                    'items' => [
+                        [
+                            'encode' => false,
+                            'label' => '<i class="icon-lock-open"></i> QL nhóm quyền trang backend',
+                            'url' => ['rbac-backend/role'],
+                            'require_auth' => true,
+                        ],
+                    ]
+                ],
+            ]
+        ],
+        [
+            'label' => 'Gửi tin',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Tin nhắn mẫu',
+                    'url' => ['template-sms/index'],
+                    'require_auth' => true,
+                ],
+
+            ]
+        ],
+        [
+            'label' => 'Quản lý môn học và điểm',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Danh sách môn học',
+                    'url' => ['subject/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Điểm môn học',
+                    'url' => ['mark/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Điểm tổng kết',
+                    'url' => ['subject/index'],
+                    'require_auth' => true,
+                ],
+            ]
+        ],
+        [
+            'label' => 'Quản lý tài khoản',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Thông tin brandname',
+                    'url' => ['brandname/index'],
+                    'require_auth' => true,
+                ],
+
+            ]
         ]
     ];
-}
-echo Nav::widget([
-    'options' => ['class' => 'navbar-nav pull-right'],
-    'items' => $rightItems,
-    'activateParents' => true
-]);
-NavBar::end();
-?>
-
-<?php
-NavBar::begin([
-    'renderInnerContainer' => true,
-    'innerContainerOptions' => [
-        'class' => 'container-fluid'
-    ],
-    'options' => [
-        'class' => 'page-header-menu',
-        'style' => 'display: block;'
-    ],
-    'containerOptions' => [
-        'class' => 'hor-menu'
-    ],
-    'toggleBtn' => false
-]);
-$menuItems = [
-
-
-    [
-        'label' => 'Hệ thống',
-        'url' => 'javascript:;',
-        'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
-        'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
-        'items' => [
-            [
-                'encode' => false,
-                'label' => '<i class=" icon-eyeglasses"></i> Lịch sử tương tác',
-                'url' => ['user-activity/index'],
-                'require_auth' => true,
-            ],
-            [
-                'label' => 'QL quyền',
-                'items' => [
-                    [
-                        'encode' => false,
-                        'label' => '<i class="icon-key"></i> QL quyền trang backend',
-                        'url' => ['rbac-backend/permission'],
-                        'require_auth' => true,
-                    ],
-                ]
-            ],
-            [
-                'label' => 'QL nhóm quyền',
-                'items' => [
-                    [
-                        'encode' => false,
-                        'label' => '<i class="icon-lock-open"></i> QL nhóm quyền trang backend',
-                        'url' => ['rbac-backend/role'],
-                        'require_auth' => true,
-                    ],
-                ]
-            ],
-        ]
-    ],
-    [
-        'label' => 'Gửi tin',
-        'url' => 'javascript:;',
-        'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
-        'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
-        'items' => [
-            [
-                'encode' => false,
-                'label' => '<i class="fa fa-server"></i> Tin nhắn mẫu',
-                'url' => ['template-sms/index'],
-                'require_auth' => true,
-            ],
-
-        ]
-    ],
-    [
-        'label' => 'Quản lý tài khoản',
-        'url' => 'javascript:;',
-        'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
-        'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
-        'items' => [
-            [
-                'encode' => false,
-                'label' => '<i class="fa fa-server"></i> Thông tin brandname',
-                'url' => ['brandname/index'],
-                'require_auth' => true,
-            ],
-            [
-                'encode' => false,
-                'label' => '<i class="icon-users"></i> QL người dùng',
-                'url' => ['user/index'],
-                'require_auth' => true,
-            ],
-
-        ]
-    ],
-    [
-        'label' => 'Quản lý danh bạ',
-        'url' => 'javascript:;',
-        'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
-        'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
-        'items' => [
-            [
-                'encode' => false,
-                'label' => '<i class="fa fa-server"></i> Tất cả danh bạ',
-                'url' => ['contact/index'],
-                'require_auth' => true,
-            ],
-            [
-                'encode' => false,
-                'label' => '<i class="icon-users"></i> Nhận xét',
-//                'url' => ['user/index'],
-                'require_auth' => true,
-            ],
-
-        ]
-    ]
-];
-echo Nav::widget([
-    'options' => ['class' => 'navbar-nav'],
-    'items' => $menuItems,
-    'activateParents' => true
-]);
-NavBar::end();
-?>
+    echo Nav::widget([
+        'options' => ['class' => 'navbar-nav'],
+        'items' => $menuItems,
+        'activateParents' => true
+    ]);
+    NavBar::end();
+    ?>
 </div>
 <!-- BEGIN CONTAINER -->
 <div class="page-container">
