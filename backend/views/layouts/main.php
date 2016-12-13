@@ -124,12 +124,6 @@ $this->registerJs("Layout.init();");
                     'require_auth' => true,
                 ],
                 [
-                    'encode' => false,
-                    'label' => '<i class="icon-users"></i> QL người dùng',
-                    'url' => ['user/index'],
-                    'require_auth' => true,
-                ],
-                [
                     'label' => 'QL quyền',
                     'items' => [
                         [
@@ -154,6 +148,26 @@ $this->registerJs("Layout.init();");
             ]
         ],
         [
+            'label' => 'Quản lý tài khoản',
+            'url' > 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Thông tin brandname',
+                    'url' => ['brandname/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-users"></i> QL người dùng',
+                    'url' => ['user/index'],
+                    'require_auth' => true,
+                ],
+            ]
+        ],
+        [
             'label' => 'Gửi tin',
             'url' => 'javascript:;',
             'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
@@ -166,6 +180,27 @@ $this->registerJs("Layout.init();");
                     'require_auth' => true,
                 ],
 
+            ]
+        ],
+
+        [
+            'label' => 'Quản lý danh bạ',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Tất cả danh bạ',
+                    'url' => ['contact/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-users"></i> Nhận xét',
+                    //                'url' => ['user/index'],
+                    'require_auth' => true,
+                ],
             ]
         ],
         [
@@ -194,21 +229,6 @@ $this->registerJs("Layout.init();");
                 ],
             ]
         ],
-        [
-            'label' => 'Quản lý tài khoản',
-            'url' => 'javascript:;',
-            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
-            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
-            'items' => [
-                [
-                    'encode' => false,
-                    'label' => '<i class="fa fa-server"></i> Thông tin brandname',
-                    'url' => ['brandname/index'],
-                    'require_auth' => true,
-                ],
-
-            ]
-        ]
     ];
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
@@ -247,7 +267,7 @@ $this->registerJs("Layout.init();");
 <!-- BEGIN FOOTER -->
 <div class="page-footer footer">
     <div class="container-fluid">
-        <p><b>&copy;Copyright  <?php echo date('Y'); ?> </b>. All Rights Reserved. <b>Kodi Backend</b>.
+        <p><b>&copy;Copyright <?php echo date('Y'); ?> </b>. All Rights Reserved. <b>Kodi Backend</b>.
             Design By VIVAS Co.,Ltd.</p>
     </div>
 </div>
