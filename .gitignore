@@ -31,3 +31,5 @@ phpunit.phar
 
 # uploaded_excels
 uploaded_excels/*
+enviroments/*
+tests/*
