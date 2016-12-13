@@ -47,7 +47,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'attribute' => 'contact_name',
                             'value'=>function ($model, $key, $index, $widget) {
                                 /** @var $model \common\models\Contact */
-                                return Html::a($model->contact_name, ['view', 'id' => $model->id],['class'=>'label label-primary']);
+                                return Html::a($model->contact_name, ['/contact-detail/index', 'id' => $model->id],['class'=>'label label-primary']);
 
                             },
                         ],
@@ -151,7 +151,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'attribute' => 'contact_name',
                             'value'=>function ($model, $key, $index, $widget) {
                                 /** @var $model \common\models\Contact */
-                                return Html::a($model->contact_name, ['view', 'id' => $model->id],['class'=>'label label-primary']);
+                                return Html::a($model->contact_name, ['/contact-detail/index', 'id' => $model->id],['class'=>'label label-primary']);
 
                             },
                         ],

@@ -10,50 +10,38 @@ $this->title = $model->brandname;
 $this->params['breadcrumbs'][] = ['label' => 'Brandname', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="template-sms-view">
 
-    <h1><?= Html::encode($this->title) ?></h1>
+<div class="row">
+    <div class="col-md-12">
+        <div class="portlet light">
+            <div class="portlet-title">
+                <div class="caption">
+                    <i class="fa fa-cogs font-green-sharp"></i>
+                    <span class="caption-subject font-green-sharp bold uppercase"> <?= $this->title;?></span>
+                </div>
+                <div class="tools">
+                    <a href="javascript:;" class="collapse" data-original-title="" title="">
+                    </a>
 
-    <p>
-        <?= Html::a('Cập nhật', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-    </p>
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="tabbable-custom ">
+                    <ul class="nav nav-tabs ">
+                        <li class="active">
+                            <a href="#tab1" data-toggle="tab" >
+                                Thông tin chung</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <?=$this->render('_detail',['model'=>$model])?>
+                        </div>
+                    </div>
+                </div>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'brandname',
-            'brand_username',
-            'number_sms',
-            'price_sms',
-            [
-                'label' => $model->getAttributeLabel('price_total'),
-                'attribute' => 'price_total',
-                'value' => \common\models\Brandname::formatNumber($model->price_sms * $model->number_sms). ' VNĐ'
-            ],
-            [
-                'label' => $model->getAttributeLabel('status'),
-                'attribute' => 'status',
-                'value' => $model->getStatusName()
-            ],
-            [
-                'label' => $model->getAttributeLabel('brand_member'),
-                'attribute' => 'brand_member',
-                'value' => \common\models\User::findOne(['id'=>$model->brand_member])->username
-            ],
-            [
-                'attribute' => 'expired_at',
-                'value' => date('d-m-Y H:i:s', $model->created_at)
-            ],
-            [
-                'attribute' => 'created_at',
-                'value' => date('d-m-Y H:i:s', $model->created_at)
-            ],
-            [
-                'attribute' => 'updated_at',
-                'value' => date('d-m-Y H:i:s', $model->updated_at)
-            ],
-
-        ],
-    ]) ?>
-
+            </div>
+        </div>
+    </div>
 </div>
+

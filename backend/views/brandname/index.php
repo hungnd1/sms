@@ -26,6 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="portlet-body">
                 <p>
                     <?php echo Html::a("Tạo brandname ", Yii::$app->urlManager->createUrl(['/brandname/create']), ['class' => 'btn btn-success']) ?>
+                    <?php echo Html::a("Gán brandname cho người dùng ", Yii::$app->urlManager->createUrl(['/brandname/owner']), ['class' => 'btn btn-success']) ?>
                 </p>
 
                 <?= GridView::widget([
@@ -56,14 +57,14 @@ $this->params['breadcrumbs'][] = $this->title;
                                 return \common\models\Brandname::formatNumber($model->price_sms). ' VNĐ';
                             },
                         ],
-                        [
-                            'class' => '\kartik\grid\DataColumn',
-                            'attribute' => 'brand_member',
-                            'value'=>function ($model, $key, $index, $widget) {
-                                /** @var $model \common\models\Brandname */
-                                return \common\models\User::findOne(['id'=>$model->brand_member])->username ;
-                            },
-                        ],
+//                        [
+//                            'class' => '\kartik\grid\DataColumn',
+//                            'attribute' => 'brand_member',
+//                            'value'=>function ($model, $key, $index, $widget) {
+//                                /** @var $model \common\models\Brandname */
+//                                return \common\models\User::findOne(['id'=>$model->brand_member])->username ;
+//                            },
+//                        ],
                         [
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'price_total',

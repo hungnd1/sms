@@ -1,5 +1,6 @@
 <?php
 
+use kartik\file\FileInput;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 use yii\helpers\Html;
@@ -23,6 +24,23 @@ use yii\helpers\Html;
 ]); ?>
 <div class="form-body">
 
+    <div class="row">
+        <div class="form-group field-content-price" style="padding-left: 27%;font-size: 15px;">
+            <?php  echo Html::a("Tải file mẫu ", Yii::$app->urlManager->createUrl(['/contact/download-template']), ['class' => 'btn btn-danger']) ?>
+        </div>
+        <br><br>
+        <?= $form->field($model, 'file')->widget(FileInput::classname(), [
+            'options' => ['multiple' => true, 'accept' => '*'],
+            'pluginOptions' => [
+                'previewFileType' => 'any',
+                'showUpload' => false,
+                'showPreview' => false,
+                'browseLabel' => '',
+                'removeLabel' => '',
+                'overwriteInitial'=>true
+            ]
+        ]); ?>
+    </div>
     <?= $form->field($model, 'contact_name')->textInput(['maxlength' => 500, 'class' => 'input-circle']) ?>
     <?= $form->field($model, 'description')->textarea(['rows' => 6]) ?>
     <?= $form->field($model, 'status')->dropDownList(

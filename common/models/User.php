@@ -37,6 +37,7 @@ use yii\web\IdentityInterface;
  * @property integer $type_kh
  * @property integer $number_sms
  * @property integer $is_send
+ * @property integer $brandname_id
  *
  * @property AuthAssignment[] $authAssignments
  * @property AuthItem[] $itemNames
@@ -208,7 +209,8 @@ class User extends ActiveRecord implements IdentityInterface
                     'is_send',
                     'user_ref_id',
                     'created_by',
-                    'type_kh'
+                    'type_kh',
+                    'brandname_id'
                 ],
                 'integer'
             ],
@@ -323,7 +325,8 @@ class User extends ActiveRecord implements IdentityInterface
             'type_kh' => Yii::t('app', 'Kiểu khách hàng'),
             'address' => Yii::t('app', 'Địa chỉ'),
             'number_sms' => Yii::t('app','Số tin nhắn'),
-            'is_send' => Yii::t('app','Cấu hình gửi tin')
+            'is_send' => Yii::t('app','Cấu hình gửi tin'),
+            'brandname_id' => Yii::t('app','Brandname'),
         ];
     }
 
@@ -705,6 +708,15 @@ class User extends ActiveRecord implements IdentityInterface
         return $lst;
     }
 
+    public function getStatusNameKH()
+    {
+        $lst = self::listTypeKH();
+        if (array_key_exists($this->type_kh, $lst)) {
+            return $lst[$this->type_kh];
+        }
+        return $this->type_kh;
+    }
+
     public static function listIsSend()
     {
         $lst = [
@@ -828,5 +840,34 @@ class User extends ActiveRecord implements IdentityInterface
         if ($user) {
             return $user->username;
         }
+    }
+
+    public static function getUserBrandname(){
+        $user = User::find()->andWhere(['status'=>User::STATUS_ACTIVE])
+            ->andWhere('brandname_id is null')
+            ->andWhere('level <> :level',[':level'=>User::USER_LEVEL_TKTHANHVIEN_KHADMIN])
+            ->andWhere('level <> :level1',[':level1'=>User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY])
+            ->andWhere('level <> :level2',[':level2'=>User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI])
+            ->all();
+        return $user;
+    }
+
+    public static function getUserBrandnameUpdate($id){
+        $user = User::find()->andWhere(['status'=>User::STATUS_ACTIVE])
+            ->andWhere('brandname_id is null')
+            ->andWhere('level <> :level',[':level'=>User::USER_LEVEL_TKTHANHVIEN_KHADMIN])
+            ->andWhere('level <> :level1',[':level1'=>User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY])
+            ->andWhere('level <> :level2',[':level2'=>User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI])
+            ->orFilterWhere(['id'=>$id])
+            ->all();
+        return $user;
+    }
+
+    public static function getBrandname(){
+        $brandname = Brandname::find()
+            ->andWhere(['status'=>Brandname::STATUS_ACTIVE])
+            ->andWhere('expired_at >= :t',[':t'=>time()])
+            ->all();
+        return $brandname;
     }
 }

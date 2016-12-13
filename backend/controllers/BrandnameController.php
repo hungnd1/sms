@@ -4,6 +4,8 @@ namespace backend\controllers;
 
 use common\models\Brandname;
 use common\models\BrandnameSearch;
+use common\models\User;
+use common\models\UserBrandname;
 use kartik\widgets\ActiveForm;
 use Yii;
 use yii\filters\VerbFilter;
@@ -84,14 +86,6 @@ class BrandnameController extends BaseBEController
             $model->brand_hash_token = $model->brand_password;
             $model->setPassword($model->brand_password);
             $model->expired_at = strtotime($model->expired_at);
-//            $brand_name = Brandname::findOne(['brand_member'=>$model->brand_member]);
-//            if($brand_name){
-//                $model->expired_at = date('d-m-Y', $model->expired_at);
-//                Yii::$app->session->setFlash('error', 'Người dùng đã có brandname');
-//                return $this->render('create', [
-//                    'model' => $model,
-//                ]);
-//            }else
                 if (!$model->save()) {
                 $model->expired_at = date('d-m-Y', $model->expired_at);
                 Yii::$app->session->setFlash('error', 'Thêm brandname khong thành công');
@@ -162,6 +156,84 @@ class BrandnameController extends BaseBEController
     protected function findModel($id)
     {
         if (($model = Brandname::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
+    }
+
+    public function actionOwner()
+    {
+        $model = new UserBrandname();
+
+        $model->setScenario('admin_create_update');
+        $post = Yii::$app->request->post();
+        if (Yii::$app->request->isAjax && isset($post['ajax']) && $model->load($post)) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+
+            $model_user = User::findOne(['id'=>$model->id]);
+            $model_user->brandname_id = $model->brandname_id;
+            if (!$model_user->save(false)) {
+                Yii::$app->session->setFlash('error', 'Gán brandname không thành công');
+                return $this->render('brandname', [
+                    'model' => $model,
+                ]);
+            }
+            Yii::$app->session->setFlash('success', 'Gán brandname thành công');
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('brandname', [
+                'model' => $model,
+            ]);
+        }
+    }
+
+    public function actionOwnerUpdate($id)
+    {
+        $model = $this->findModelUserBrandname($id);
+        $id = $model->id;
+        $model->setScenario('admin_create_update');
+        $post = Yii::$app->request->post();
+        if (Yii::$app->request->isAjax && isset($post['ajax']) && $model->load($post)) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            return ActiveForm::validate($model);
+        }
+        if ($model->load(Yii::$app->request->post())) {
+            if($id == $model->id){
+                if (!$model->save(false)) {
+                    Yii::$app->session->setFlash('error', 'Cập nhật brandname không thành công');
+                    return $this->render('brandname_update', [
+                        'model' => $model,
+                    ]);
+                }
+            }else{
+                $brandname_id = $model->brandname_id;
+                $model->brandname_id = null;
+                $userOther = User::findOne(['id'=>$model->id]);
+                $userOther->brandname_id = $brandname_id;
+                $model->id = $id;
+                if (!$userOther->save(false) || !$model->save(false)) {
+                    Yii::$app->session->setFlash('error', 'Cập nhật brandname không thành công');
+                    return $this->render('brandname_update', [
+                        'model' => $model,
+                    ]);
+                }
+            }
+            Yii::$app->session->setFlash('success', 'Cập nhật brandname thành công');
+            return $this->redirect(['index']);
+        } else {
+            return $this->render('brandname_update', [
+                'model' => $model,
+            ]);
+        }
+    }
+
+    protected function findModelUserBrandname($id)
+    {
+        if (($model = UserBrandname::findOne(['brandname_id'=>$id])) !== null) {
             return $model;
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');

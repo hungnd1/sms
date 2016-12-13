@@ -1,18 +1,15 @@
 <?php
 
 use yii\helpers\Html;
-use kartik\detail\DetailView;
-use common\models\User;
+use yii\widgets\DetailView;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\User */
-/* @var $active int */
+/* @var $model common\models\ContactDetail */
 
-$this->title = "Thông tin tài khoản";
-$this->params['breadcrumbs'][] = ['label' => 'Quản lý người dùng', 'url' => ['index']];
+$this->title = $model->fullname;
+$this->params['breadcrumbs'][] = ['label' => 'Chi tiết danh bạ', 'url' => ['index','id'=>$model->contact_id]];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-
 <div class="row">
     <div class="col-md-12">
         <div class="portlet light">
@@ -30,21 +27,14 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="portlet-body">
                 <div class="tabbable-custom ">
                     <ul class="nav nav-tabs ">
-                        <li class="<?= ($active == 1) ? 'active' : '' ?>">
+                        <li class="active">
                             <a href="#tab1" data-toggle="tab" >
                                 Thông tin chung</a>
                         </li>
-                        <li class=" <?= ($active == 2) ? 'active' : '' ?>">
-                            <a href="#tab2" data-toggle="tab" >
-                                Phân quyền </a>
-                        </li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane <?= ($active == 1) ? 'active' : '' ?>" id="tab1">
+                        <div class="tab-pane active" id="tab1">
                             <?=$this->render('_detail',['model'=>$model])?>
-                        </div>
-                        <div class="tab-pane <?= ($active == 2) ? 'active' : '' ?>" id="tab2">
-                            <?=$this->render('_user_role',['model'=>$model])?>
                         </div>
                     </div>
                 </div>

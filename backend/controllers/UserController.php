@@ -5,19 +5,17 @@ namespace backend\controllers;
 use api\helpers\Message;
 use common\components\ActionLogTracking;
 use common\components\ActionProtectSuperAdmin;
+use common\models\AuthAssignment;
+use common\models\AuthItem;
 use common\models\Brandname;
+use common\models\User;
 use common\models\UserActivity;
+use common\models\UserSearch;
 use kartik\widgets\ActiveForm;
 use Yii;
-use common\models\User;
-use common\models\UserSearch;
-use yii\web\Controller;
-use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
-use common\models\AuthAssignment;
+use yii\web\NotFoundHttpException;
 use yii\web\Response;
-use common\auth\filters\Yii2Auth;
-use common\models\AuthItem;
 
 /**
  * UserController implements the CRUD actions for User model.
@@ -26,7 +24,7 @@ class UserController extends BaseBEController
 {
     public function behaviors()
     {
-        return array_merge(parent::behaviors(),[
+        return array_merge(parent::behaviors(), [
             [
                 'class' => ActionProtectSuperAdmin::className(),
                 'user' => Yii::$app->user,
@@ -38,7 +36,7 @@ class UserController extends BaseBEController
             'verbs' => [
                 'class' => VerbFilter::className(),
                 'actions' => [
-                    'delete' => ['post','get'],
+                    'delete' => ['post', 'get'],
                 ],
             ],
             [
@@ -55,7 +53,7 @@ class UserController extends BaseBEController
                     ['action' => 'add-auth-item', 'accept_ajax' => true],
                     ['action' => 'revoke-auth-item', 'accept_ajax' => true]
                 ],
-                'only' => ['create', 'delete', 'update', 'change-password', 'add-auth-item', 'revoke-auth-item','send','config']
+                'only' => ['create', 'delete', 'update', 'change-password', 'add-auth-item', 'revoke-auth-item', 'send', 'config']
             ],
         ]);
     }
@@ -100,46 +98,44 @@ class UserController extends BaseBEController
     {
         $model = new User();
         $model->setScenario('create');
-
         if (Yii::$app->request->isAjax && $model->load(Yii::$app->request->post())) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
-        if ($model->load(Yii::$app->request->post()) ) {
+        if ($model->load(Yii::$app->request->post())) {
             $model->status = User::STATUS_ACTIVE;
             $model->created_by = Yii::$app->user->id;
             $model->password_reset_token = $model->password;
             $model->setPassword($model->password);
             $model->is_send = 0;
             $model->generateAuthKey();
+            if ($model->level == User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY || $model->level == User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI || $model->level == User::USER_LEVEL_TKTHANHVIEN_KHADMIN) {
+                $numbersms = User::find()->andWhere(['created_by' => Yii::$app->user->id])->all();
+                $numbersms_total = 0; //tong so tin nhan cua thanh vien da co cua khach hang do
+                foreach ($numbersms as $item) {
+                    $numbersms_total += $item->number_sms;
+                }
+                $numbersms_total = $numbersms_total + $model->number_sms;
+                $smsbrand = Brandname::findOne(['id' => Yii::$app->user->identity->brandname_id]);
+                if ($numbersms_total > $smsbrand->number_sms) {
+                    Yii::$app->session->setFlash('error', 'Người dùng đã vượt quá số tin ' . ($numbersms_total - $smsbrand->number_sms));
+                    return $this->render('create', [
+                        'model' => $model,
+                    ]);
+                } else if ($model->save()) {
+                        Yii::$app->session->setFlash('success', 'Thêm người dùng thành công');
+                        return $this->redirect(['index']);
+                    }
+            } else if ($model->save()) {
+                Yii::$app->session->setFlash('success', 'Thêm người dùng thành công');
+                return $this->redirect(['index']);
 
-            $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])->all();
-            $numbersms_total = 0;
-            $smsbrand_total = 0;
-
-            $smsbrand = Brandname::findAll(['brand_member'=>Yii::$app->user->id]);
-            foreach($smsbrand as $item){
-                $smsbrand_total += $item->number_sms;
-            }
-
-            foreach($numbersms as $item){
-                $numbersms_total += $item->number_sms;
-            }
-            $numbersms_ = $numbersms_total + $model->number_sms;
-            if($numbersms_ > $smsbrand_total ){
-                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand_total));
+            } else {
+                Yii::$app->session->setFlash('error', 'Thêm người dùng không thành công');
                 return $this->render('create', [
                     'model' => $model,
                 ]);
-            }else if(!$model->save()){
-                Yii::$app->session->setFlash('error','Thêm người dùng không thành công');
-                return $this->render('create', [
-                    'model' => $model,
-                ]);
             }
-            Yii::$app->session->setFlash('success', 'Thêm người dùng thành công');
-            return $this->redirect(['index']);
-
         } else {
             return $this->render('create', [
                 'model' => $model,
@@ -163,42 +159,49 @@ class UserController extends BaseBEController
             Yii::$app->response->format = Response::FORMAT_JSON;
             return ActiveForm::validate($model);
         }
-        if ($model->load(Yii::$app->request->post()) ) {
+        if ($model->load(Yii::$app->request->post())) {
             /** Set lại username */
             $model->username = $username;
-            $numbersms = User::find()->andWhere(['created_by'=>Yii::$app->user->id])
-                ->andWhere('id <> :id',[':id'=>$model->id])->all();
-            $numbersms_total = 0;
-
-            $smsbrand = Brandname::findOne(['brand_member'=>Yii::$app->user->id]);
-
-            foreach($numbersms as $item){
-                $numbersms_total += $item->number_sms;
-            }
-            $numbersms_ = $numbersms_total + $model->number_sms;
-            if($numbersms_ > $smsbrand->number_sms ){
-                Yii::$app->session->setFlash('error','Người dùng đã vượt quá số tin '.( $numbersms_ - $smsbrand->number_sms));
-                return $this->render('create', [
-                    'model' => $model,
-                ]);
-            }else if($model->update()){
+            if ($model->level == User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY || $model->level == User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI || $model->level == User::USER_LEVEL_TKTHANHVIEN_KHADMIN) {
+                $numbersms = User::find()->andWhere(['created_by' => Yii::$app->user->id])
+                    ->andWhere('id <> :id', [':id' => $model->id])->all();
+                $numbersms_total = 0; //tong so tin nhan cua thanh vien da co cua khach hang do
+                foreach ($numbersms as $item) {
+                    $numbersms_total += $item->number_sms;
+                }
+                $numbersms_total = $numbersms_total + $model->number_sms;
+                $smsbrand = Brandname::findOne(['id' => Yii::$app->user->identity->brandname_id]);
+                if ($numbersms_total > $smsbrand->number_sms) {
+                    Yii::$app->session->setFlash('error', 'Người dùng đã vượt quá số tin ' . ($numbersms_total - $smsbrand->number_sms));
+                    return $this->render('updated', [
+                        'model' => $model,
+                    ]);
+                }else if ($model->update()) {
+                    Yii::$app->session->setFlash('success', 'Cập nhật người dùng thành công');
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
+            } else if ($model->update()) {
                 Yii::$app->session->setFlash('success', 'Cập nhật người dùng thành công');
                 return $this->redirect(['view', 'id' => $model->id]);
+            } else {
+                Yii::$app->getSession()->setFlash('error', Message::MSG_FAIL);
             }
-            Yii::$app->getSession()->setFlash('error', Message::MSG_FAIL);
+
         }
 
         return $this->render('update', [
-                'model' => $model,
-            ]);
+            'model' => $model,
+        ]);
     }
 
-    public function actionInfo(){
+    public function actionInfo()
+    {
         $user = Yii::$app->user->identity;
         return $this->render('info', ['model' => $user]);
     }
 
-    public function actionUpdateOwner(){
+    public function actionUpdateOwner()
+    {
 
         /**
          * @var $model User
@@ -235,11 +238,11 @@ class UserController extends BaseBEController
             return ActiveForm::validate($model);
         }
 
-        if ($model->load(Yii::$app->request->post()) ) {
+        if ($model->load(Yii::$app->request->post())) {
             $model->password = $model->new_password;
             $model->setPassword($model->password);
             $model->generateAuthKey();
-            if($model->update()){
+            if ($model->update()) {
                 Yii::$app->session->setFlash('success', 'Khôi phục mật khẩu thành công');
                 return $this->redirect(['view', 'id' => $model->id]);
             }
@@ -275,18 +278,18 @@ class UserController extends BaseBEController
             return ActiveForm::validate($model);
         }
 
-        if ($model->load(Yii::$app->request->post()) ) {
-            if($model->validatePassword($model->old_password)){
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validatePassword($model->old_password)) {
                 $model->password = $model->new_password;
                 $model->setPassword($model->password);
                 $model->generateAuthKey();
                 $model->old_password = $model->new_password;
-                if($model->update()){
+                if ($model->update()) {
                     Yii::$app->session->setFlash('success', 'Đổi mật khẩu thành công');
                     return $this->redirect(['view', 'id' => $model->id]);
                 }
                 Yii::$app->getSession()->setFlash('error', Message::MSG_FAIL);
-            }else{
+            } else {
                 Yii::$app->getSession()->setFlash('error', 'Mật khẩu cũ không đúng');
             }
 
@@ -323,17 +326,17 @@ class UserController extends BaseBEController
 //            Yii::$app->session->setFlash('error', 'Thay đổi mật khẩu user "'.$model->username.'" không thành công!');
 //            return $this->redirect(['info']);
 //        }
-        if ($model->load(Yii::$app->request->post()) ) {
-            if($model->validatePassword($model->old_password)){
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->validatePassword($model->old_password)) {
                 $model->setPassword($model->new_password);
                 $model->generateAuthKey();
                 $model->old_password = $model->new_password;
-                if($model->update()){
+                if ($model->update()) {
                     Yii::$app->session->setFlash('success', 'Đổi mật khẩu thành công');
                     return $this->redirect(['info']);
                 }
                 Yii::$app->getSession()->setFlash('error', Message::MSG_FAIL);
-            }else{
+            } else {
                 Yii::$app->getSession()->setFlash('error', 'Mật khẩu cũ không đúng');
             }
 
@@ -353,17 +356,18 @@ class UserController extends BaseBEController
 //
 //        return $this->redirect(['index']);
 
-        $model=$this->findModel($id);
-        if($model->id == Yii::$app->user->getId()){
+        $model = $this->findModel($id);
+        if ($model->id == Yii::$app->user->getId()) {
             Yii::$app->session->setFlash('error', 'Bạn không thể thực hiện chức năng này!');
             return $this->redirect(['index']);
         }
-        $model->status=User::STATUS_DELETED;
-        if($model->save()){
+        $model->status = User::STATUS_DELETED;
+        if ($model->save()) {
             Yii::$app->session->setFlash('success', 'Xóa thành công');
             return $this->redirect(['index']);
         }
-        var_dump($model->getFirstErrors());exit;
+        var_dump($model->getFirstErrors());
+        exit;
         Yii::$app->session->setFlash('error', Message::MSG_FAIL);
         return $this->redirect(['index']);
 
@@ -450,12 +454,12 @@ class UserController extends BaseBEController
                     $mapping->item_name = $item;
                     $mapping->user_id = $id;
                     if ($mapping->save()) {
-                        $count ++;
+                        $count++;
                     }
                 }
 
 
-                if ($count >0) {
+                if ($count > 0) {
                     $success = true;
                     $message = "Đã thêm $count nhóm quyền cho người dùng '$model->username'";
 
@@ -469,44 +473,46 @@ class UserController extends BaseBEController
         ];
     }
 
-    public function actionSend(){
-        if (isset($_POST['arr_member'])){
-                echo '{"status":"ok"}';
-        }else{
+    public function actionSend()
+    {
+        if (isset($_POST['arr_member'])) {
+            echo '{"status":"ok"}';
+        } else {
             echo '{"status":"nok"}';
         }
     }
 
-    public function actionConfig(){
-        if (isset($_POST['arr_member'])){
+    public function actionConfig()
+    {
+        if (isset($_POST['arr_member'])) {
             $is_kh = 1;
             for ($i = 0; $i < sizeof($_POST['arr_member']); $i++) {
-                $user = User::find()->andWhere(['id'=>$_POST['arr_member'][$i]])->one();
-                if($user->level != User::USER_LEVEL_TKKHACHHANG_DAILY && $user->level != User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI
+                $user = User::find()->andWhere(['id' => $_POST['arr_member'][$i]])->one();
+                if ($user->level != User::USER_LEVEL_TKKHACHHANG_DAILY && $user->level != User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI
                     && $user->level != User::USER_LEVEL_TKKHACHHANGADMIN && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHADMIN
                     && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHACHHANGDAILY && $user->level != User::USER_LEVEL_TKTHANHVIEN_KHAHHANGDAILYCAPDUOI
-                ){
+                ) {
                     $is_kh = 0;
                 }
             }
-            if($is_kh == 1){
+            if ($is_kh == 1) {
                 for ($i = 0; $i < sizeof($_POST['arr_member']); $i++) {
-                    $user = User::find()->andWhere(['id'=>$_POST['arr_member'][$i]])->one();
-                    if($user->is_send == 1){
+                    $user = User::find()->andWhere(['id' => $_POST['arr_member'][$i]])->one();
+                    if ($user->is_send == 1) {
                         $user->is_send = 0;
-                    }else{
+                    } else {
                         $user->is_send = 1;
                     }
                     $user->updated_at = time();
                     $user->save(false);
                 }
             }
-            if($is_kh == 1){
+            if ($is_kh == 1) {
                 echo '{"status":"ok"}';
-            }else{
+            } else {
                 echo '{"status":"nok"}';
             }
-        }else{
+        } else {
             echo '{"status":"nok"}';
         }
     }

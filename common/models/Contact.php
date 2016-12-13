@@ -25,6 +25,7 @@ class Contact extends \yii\db\ActiveRecord
     {
         return 'contact';
     }
+    public $file;
 
     const STATUS_ACTIVE = 10;
     const STATUS_INACTIVE = 0;
@@ -36,7 +37,7 @@ class Contact extends \yii\db\ActiveRecord
     {
         return [
             [['contact_name'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['description'], 'string'],
+            [['description','file'], 'string'],
             [['status', 'created_at', 'updated_at', 'path', 'created_by'], 'integer'],
             [['contact_name'], 'string', 'max' => 500],
         ];
@@ -56,6 +57,7 @@ class Contact extends \yii\db\ActiveRecord
             'updated_at' => 'Ngày cập nhật',
             'path' => 'Danh bạ cha',
             'created_by' => 'Người tạo',
+            'file' => 'Nhập dữ liệu danh bạ chi tiết'
         ];
     }
 
@@ -66,6 +68,8 @@ class Contact extends \yii\db\ActiveRecord
             self::STATUS_INACTIVE => 'Không hoạt động',
         ];
     }
+
+
 
     public function getStatusName()
     {

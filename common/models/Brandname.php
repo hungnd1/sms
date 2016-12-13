@@ -17,7 +17,6 @@ use Yii;
  * @property integer $updated_at
  * @property integer $expired_at
  * @property integer $created_by
- * @property integer $brand_member
  * @property integer $number_sms
  * @property integer $price_sms
  */
@@ -43,8 +42,8 @@ class Brandname extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['brand_username', 'brand_password','brandname','number_sms','price_sms','expired_at','brand_member'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['status', 'created_at', 'updated_at', 'created_by','price_total', 'brand_member', 'number_sms', 'price_sms'], 'integer'],
+            [['brand_username', 'brand_password','brandname','number_sms','price_sms','expired_at'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
+            [['status', 'created_at', 'updated_at', 'created_by','price_total', 'number_sms', 'price_sms'], 'integer'],
             [['brandname', 'brand_username', 'brand_password', 'brand_hash_token'], 'string', 'max' => 500],
         ];
     }
@@ -65,7 +64,6 @@ class Brandname extends \yii\db\ActiveRecord
             'updated_at' => 'Ngày cập nhật',
             'expired_at' => 'Ngày hết hạn',
             'created_by' => 'Người tạo',
-            'brand_member' => 'Chủ sở hữu',
             'number_sms' => 'Số tin',
             'price_sms' => 'Đơn giá',
             'price_total'=>'Số dư'
@@ -98,22 +96,5 @@ class Brandname extends \yii\db\ActiveRecord
     }
 
 
-    public static function getOwner($brand_member = null){
 
-            $brandMember = Brandname::findAll(['status'=>Brandname::STATUS_ACTIVE]);
-            $arr = '';
-            foreach($brandMember as $item){
-                if($brand_member){
-                    if($item->brand_member != $brand_member){
-                        $arr .= $item->brand_member.',';
-                    }
-                }else{
-                    $arr .= $item->brand_member.',';
-                }
-            }
-            $listId = rtrim($arr,',');
-            $user = User::find()->andWhere('id not in ('.$listId.')')
-                ->andWhere(['status'=>User::STATUS_ACTIVE])->all();
-            return $user;
-    }
 }

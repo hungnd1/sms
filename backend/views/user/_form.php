@@ -2,6 +2,7 @@
 
 use common\models\User;
 use kartik\widgets\ActiveForm;
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use yii\web\View;
 
@@ -42,34 +43,56 @@ $formId = $form->id;
         <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên', 'maxlength' => 100]) ?>
         <?= $form->field($model, 'password')->passwordInput(['placeholder' => 'Nhập mật khẩu có độ dài  tối thiểu 8 kí tự']) ?>
         <?= $form->field($model, 'confirm_password')->passwordInput(['placeholder' => 'Nhập lại mật khẩu']) ?>
-        <?= $form->field($model,'address') ->textInput(['placeholder'=>'Địa chỉ','maxlength'=>'200'])?>
-        <?= $form->field($model,'phone_number') ->textInput(['placeholder'=>'Số điện thoại','maxlength'=>'11'])?>
-        <?= $form->field($model,'number_sms') ->textInput(['placeholder'=>'Số tin nhắn tối đa','maxlength'=>'12'])?>
+        <?= $form->field($model, 'address')->textInput(['placeholder' => 'Địa chỉ', 'maxlength' => '200']) ?>
+        <?= $form->field($model, 'phone_number')->textInput(['placeholder' => 'Số điện thoại', 'maxlength' => '12']) ?>
+        <?= $form->field($model, 'number_sms')->textInput(['placeholder' => 'Số tin nhắn tối đa', 'maxlength' => '12']) ?>
         <?= $form->field($model, 'status')->dropDownList(User::listStatus()) ?>
         <?= $form->field($model, 'type_kh')->dropDownList(User::listTypeKH()) ?>
         <?php
+        if (Yii::$app->user->identity->level == User::USER_LEVEL_ADMIN || Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYADMIN) {
+            echo $form->field($model, 'brandname_id')->widget(Select2::classname(), [
+                'data' => \yii\helpers\ArrayHelper::map(\common\models\Brandname::findAll(['status'=>\common\models\Brandname::STATUS_ACTIVE]), 'id', 'brandname'),
+                'options' => ['placeholder' => 'Brandname'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ])->label('Brandname');
+        }
+        ?>
+        <?php
         if (Yii::$app->user->identity->level == User::USER_LEVEL_ADMIN) { ?>
-            <?= $form->field($model,'level')->dropDownList(User::user_role_admin(), ['class' => 'input-circle']) ?>
-        <?php }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYADMIN){
-            echo $form->field($model,'level')->dropDownList(User::user_role_daily(), ['class' => 'input-circle']);
-        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANGADMIN){
-            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangadmin(), ['class' => 'input-circle']);
-        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYCAPDUOI){
-            echo $form->field($model,'level')->dropDownList(User::user_role_dailycapduoi(), ['class' => 'input-circle']);
-        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI){
-            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
-        }else if(Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILY){
-            echo $form->field($model,'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
+            <?= $form->field($model, 'level')->dropDownList(User::user_role_admin(), ['class' => 'input-circle']) ?>
+        <?php } else if (Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYADMIN) {
+            echo $form->field($model, 'level')->dropDownList(User::user_role_daily(), ['class' => 'input-circle']);
+        } else if (Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANGADMIN) {
+            echo $form->field($model, 'level')->dropDownList(User::user_role_khachhangadmin(), ['class' => 'input-circle']);
+        } else if (Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYCAPDUOI) {
+            echo $form->field($model, 'level')->dropDownList(User::user_role_dailycapduoi(), ['class' => 'input-circle']);
+        } else if (Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILYCAPDUOI) {
+            echo $form->field($model, 'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
+        } else if (Yii::$app->user->identity->level == User::USER_LEVEL_TKKHACHHANG_DAILY) {
+            echo $form->field($model, 'level')->dropDownList(User::user_role_khachhangdaily(), ['class' => 'input-circle']);
         }
         ?>
 
     <?php } else { ?>
         <?= $form->field($model, 'username')->textInput(['readonly' => true]) ?>
         <?= $form->field($model, 'email')->textInput(['placeholder' => 'Email', 'maxlength' => 100]) ?>
-        <?= $form->field($model,'address') ->textInput(['placeholder'=>'Địa chỉ','maxlength'=>'200'])?>
-        <?= $form->field($model,'phone_number') ->textInput(['placeholder'=>'Số điện thoại','maxlength'=>'11'])?>
-        <?= $form->field($model,'number_sms') ->textInput(['placeholder'=>'Số tin nhắn tối đa','maxlength'=>'11'])?>
+        <?= $form->field($model, 'address')->textInput(['placeholder' => 'Địa chỉ', 'maxlength' => '200']) ?>
+        <?= $form->field($model, 'phone_number')->textInput(['placeholder' => 'Số điện thoại', 'maxlength' => '11']) ?>
+        <?= $form->field($model, 'number_sms')->textInput(['placeholder' => 'Số tin nhắn tối đa', 'maxlength' => '11']) ?>
         <?= $form->field($model, 'fullname')->textInput(['placeholder' => 'Họ tên', 'maxlength' => 100]) ?>
+        <?php
+        if (Yii::$app->user->identity->level == User::USER_LEVEL_ADMIN || Yii::$app->user->identity->level == User::USER_LEVEL_TKDAILYADMIN) {
+            echo $form->field($model, 'brandname_id')->widget(Select2::classname(), [
+                'data' => \yii\helpers\ArrayHelper::map(\common\models\Brandname::findAll(['status'=>\common\models\Brandname::STATUS_ACTIVE]), 'id', 'brandname'),
+                'options' => ['placeholder' => 'Brandname'],
+                'pluginOptions' => [
+                    'allowClear' => true
+                ],
+            ])->label('Brandname');
+        }
+        ?>
         <?= $form->field($model, 'type_kh')->dropDownList(User::listTypeKH()) ?>
         <!--        Nếu là chính nó thì không cho thay đổi trạng thái-->
         <?php if ($model->id != Yii::$app->user->getId()) { ?>
