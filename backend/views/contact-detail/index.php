@@ -3,6 +3,7 @@
 use kartik\grid\GridView;
 use kartik\widgets\ActiveForm;
 use kartik\widgets\FileInput;
+use kartik\widgets\Select2;
 use yii\helpers\Html;
 use yii\helpers\Url;
 
@@ -35,13 +36,13 @@ $this->params['breadcrumbs'][] = $this->title;
                     'enableAjaxValidation' => false,
                     'enableClientValidation' => true,
                 ]); ?>
-                <div class="col-md-2" style="margin-right: -40px;">
+                <div class="col-md-2">
                     <?php echo Html::a("Thêm danh sách chi tiết ", Yii::$app->urlManager->createUrl(['/contact-detail/create', 'id' => $id]), ['class' => 'btn btn-success']) ?>
                 </div>
-                <div class="col-md-2" style="margin-right: -40px;">
+                <div class="col-md-1">
                     <?php echo Html::a("Tải file mẫu  ", Yii::$app->urlManager->createUrl(['/contact/download-template']), ['class' => 'btn btn-danger']) ?>
                 </div>
-                <div class="col-md-3" style="margin-left: -40px;">
+                <div class="col-md-2">
                     <?= $form->field($model, 'file')->widget(FileInput::classname(), [
                         'options' => ['multiple' => true, 'accept' => '*'],
                         'pluginOptions' => [
@@ -54,8 +55,26 @@ $this->params['breadcrumbs'][] = $this->title;
                         ]
                     ]); ?>
                 </div>
-                <div class="col-md-2" style="margin-left: -70px;">
+                <div class="col-md-1">
                     <?= Html::button('Tải dữ liệu', ['class' => 'btn btn-success','onclick'=>'move();']) ?>
+                </div>
+                <div class="col-md-1">
+                    <?= Html::button('Gửi tin', ['class' => 'btn btn-success','onclick'=>'sendsms();']) ?>
+                </div>
+                <div class="col-md-3">
+                    <?= $form->field($model,'contact_id')->widget(Select2::classname(), [
+                        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()
+                            ->andWhere(['status'=>\common\models\Contact::STATUS_ACTIVE])
+                            ->andWhere(['created_by'=>Yii::$app->user->id])
+                            ->andWhere('id <> :id',[':id'=>$id])->all(), 'id', 'contact_name'),
+                        'options' => ['placeholder' => 'Danh bạ'],
+                        'pluginOptions' => [
+                            'allowClear' => true
+                        ],
+                    ])->label('Danh bạ'); ?>
+                </div>
+                <div class="col-md-1">
+                    <?= Html::button('Chuyển danh bạ', ['class' => 'btn btn-success','onclick'=>'sharecontact();']) ?>
                 </div>
                 <?php ActiveForm::end(); ?>
                 <br><br>
@@ -178,8 +197,6 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <script>
     function move(){
-        alert(1);
-        var fileVal=document.getElementById("contactdetail-file");
         var id = '<?= $id ?>';
         var file_data = $('#contactdetail-file').prop('files')[0];
         var form_data = new FormData();
@@ -223,4 +240,59 @@ $this->params['breadcrumbs'][] = $this->title;
 
     }
 
+    function sendsms(){
+        var cboxes = document.getElementsByName('selection[]');
+        var len = cboxes.length;
+        var arr = [];
+        for (var i=0; i<len; i++) {
+            if(cboxes[i].checked) {
+                arr.push(cboxes[i].value);
+            }
+        }
+        if(arr.length == 0){
+            alert('Bạn chưa chọn tài khoản nào');
+            return;
+        }else{
+            alert('Chức năng đang đươc nâng cấp');
+        }
+    }
+
+    function sharecontact(){
+        var cboxes = document.getElementsByName('selection[]');
+        var contact_id = document.getElementById('contactdetail-contact_id').value;
+        var len = cboxes.length;
+        var arr = [];
+        for (var i=0; i<len; i++) {
+            if(cboxes[i].checked) {
+                arr.push(cboxes[i].value);
+            }
+        }
+        if(arr.length == 0){
+            alert('Bạn chưa chọn tài khoản nào');
+            return;
+        }else if(contact_id == '' || contact_id == null){
+            alert('Bạn chưa chọn danh bạ nào');
+            return;
+        }else{
+            $.ajax({
+                type:'POST',
+                url:'<?= Url::toRoute(['contact-detail/share-contact']) ?>',
+                beforeSend: function(){
+                    //code;
+                },
+                data:{arr_member:arr,contactId:contact_id},
+                success: function(data){
+                    var responseJSON = jQuery.parseJSON(data);
+                    if(responseJSON.status=="ok"){
+                        alert('Chuyển danh bạ thành công');
+                        location.reload();
+                    }
+                    else{
+                        alert('Chuyển danh bạ không thành công');
+                        location.reload();
+                    }
+                }
+            });
+        }
+    }
 </script>

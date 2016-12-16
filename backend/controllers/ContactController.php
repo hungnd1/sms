@@ -124,7 +124,7 @@ class ContactController extends BaseBEController
                         $modelContact->phone_number = $rowData[0][2];
                         $modelContact->address = $rowData[0][3];
                         $modelContact->company = $rowData[0][4];
-                        $modelContact->birthday = strtotime(str_replace('/',$rowData[0][5],'-'));
+                        $modelContact->birthday = strtotime(str_replace('/','-',$rowData[0][5]));
 
                         if ($rowData[0][6] == 'Nam') {
                             $modelContact->gender = ContactDetail::GENDER_MALE;

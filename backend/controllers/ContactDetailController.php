@@ -205,7 +205,7 @@ class ContactDetailController extends BaseBEController
                     $modelContact->phone_number = $rowData[0][2];
                     $modelContact->address = $rowData[0][3];
                     $modelContact->company = $rowData[0][4];
-                    $modelContact->birthday = strtotime(str_replace('/', $rowData[0][5], '-'));
+                    $modelContact->birthday = strtotime(str_replace('/', '-', $rowData[0][5]));
 
                     if ($rowData[0][6] == 'Nam') {
                         $modelContact->gender = ContactDetail::GENDER_MALE;
@@ -226,19 +226,45 @@ class ContactDetailController extends BaseBEController
         }
     }
 
-    public function actionUpdateContact(){
+    public function actionUpdateContact()
+    {
         if (isset($_POST['id'])) {
             $contactDetail = ContactDetail::find()
                 ->andWhere('contact_id is null')
-                ->andWhere(['status'=>ContactDetail::STATUS_ACTIVE])
+                ->andWhere(['status' => ContactDetail::STATUS_ACTIVE])
                 ->all();
-            foreach($contactDetail as $item){
-                $contact = ContactDetail::findOne(['id'=>$item->id]);
+            foreach ($contactDetail as $item) {
+                $contact = ContactDetail::findOne(['id' => $item->id]);
                 $contact->contact_id = $_POST['id'];
                 $contact->save(false);
             }
             echo '{"status":"ok"}';
-        }else {
+        } else {
+            echo '{"status":"nok"}';
+        }
+    }
+
+    public function actionShareContact()
+    {
+        if (isset($_POST['arr_member']) && isset($_POST['contactId'])) {
+            $check = 0;
+            for ($i = 0; $i < sizeof($_POST['arr_member']); $i++) {
+                $modelContactDetail = ContactDetail::findOne(['id' => $_POST['arr_member'][$i]]);
+                $modelContactDetail->contact_id = $_POST['contactId'];
+                if ($modelContactDetail->save(false)) {
+                    $check = 1;
+                } else {
+                    $check = 0;
+                    break;
+                }
+
+            }
+            if ($check) {
+                echo '{"status":"ok"}';
+            } else {
+                echo '{"status":"nok"}';
+            }
+        } else {
             echo '{"status":"nok"}';
         }
     }
