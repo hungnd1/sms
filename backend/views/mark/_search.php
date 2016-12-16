@@ -34,7 +34,8 @@ use yii\helpers\Html;
                 <td style="padding-right: 10px">
                     <?=
                     $form->field($model, 'class_id')->widget(Select2::classname(), [
-                        'data' => ['1' => 'Học kỳ I', '2' => 'Học kỳ II'],
+                        'id' => 'class_id',
+                        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by'=>Yii::$app->user->id])->all(), 'id', 'contact_name'),
                         'pluginOptions' => [
                             'allowClear' => true,
                             'width' => '200px'
