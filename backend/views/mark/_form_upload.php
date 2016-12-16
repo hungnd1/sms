@@ -10,12 +10,27 @@ use yii\helpers\Html;
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
+
+<script type="text/javascript">
+
+    function show() {
+        var class_id = $('#mark-class_id').val();
+        alert(class_id);
+    }
+
+    function submit_form(action) {
+        $('#action').val(action);
+        $("#my_form").submit();
+    }
+</script>
+
 <!-- Tải file mẫu -->
-<?php $form_download = ActiveForm::begin([
-    'type' => ActiveForm::TYPE_HORIZONTAL,
-    'action' => ['download-template'],
-    'fullSpan' => 8,
+<?php $form = ActiveForm::begin([
+    'id' => 'my_form',
     'options' => ['enctype' => 'multipart/form-data'],
+    'type' => ActiveForm::TYPE_HORIZONTAL,
+    'action' => ['upload'],
+    'fullSpan' => 8,
     'formConfig' => [
         'type' => ActiveForm::TYPE_HORIZONTAL,
         'labelSpan' => 3,
@@ -37,41 +52,25 @@ use yii\helpers\Html;
     </div>
 
     <div class="row">
+        <?= $form->field($model, 'action')->hiddenInput(['id' => 'action', 'value' => 'upload'])->label(false) ?>
         <?=
-        $form_download->field($model, 'subject_id')->widget(Select2::classname(), [
+        $form->field($model, 'subject_id')->widget(Select2::classname(), [
             'size' => Select2::MEDIUM,
             'data' => \yii\helpers\ArrayHelper::map(\common\models\Subject::find()->all(), 'id', 'name'),
             'pluginOptions' => [
                 'allowClear' => true,
                 'width' => '50%'
             ],
-            'options' => ['placeholder' => 'Select a state ...', 'multiple' => true],
+            'options' => ['placeholder' => 'Select a subject ...', 'multiple' => true],
         ])->label('Chọn môn học');
         ?>
 
         <div class="form-group field-content-price" style="padding-left: 27%;font-size: 15px;">
-            <?= Html::submitButton('Tải file mẫu', ['class' => 'btn btn-success']) ?>
+            <?= Html::button('Tải file mẫu', ['class' => 'btn btn-success', 'onclick' => 'submit_form(\'download\')']) ?>
         </div>
     </div>
 
-    <?php ActiveForm::end(); ?>
 </div>
-
-
-<!-- Tải lên danh sách điểm -->
-<?php $form = ActiveForm::begin([
-    'type' => ActiveForm::TYPE_HORIZONTAL,
-    'fullSpan' => 8,
-    'options' => ['enctype' => 'multipart/form-data'],
-    'formConfig' => [
-        'type' => ActiveForm::TYPE_HORIZONTAL,
-        'labelSpan' => 3,
-        'deviceSize' => ActiveForm::SIZE_SMALL,
-    ],
-    'enableAjaxValidation' => false,
-    'enableClientValidation' => true,
-]); ?>
-
 
 <div class="form-body">
 
@@ -97,7 +96,8 @@ use yii\helpers\Html;
 
     <?=
     $form->field($model, 'class_id')->widget(Select2::classname(), [
-        'data' => ['1' => 'Học kỳ I', '2' => 'Học kỳ II'],
+        'id' => 'class_id',
+        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by'=>Yii::$app->user->id])->all(), 'id', 'contact_name'),
         'pluginOptions' => [
             'allowClear' => true,
             'width' => '50%'
@@ -120,7 +120,7 @@ use yii\helpers\Html;
     <div class="form-actions">
         <div class="row">
             <div class="col-md-offset-3 col-md-9">
-                <?= Html::submitButton('Tải lên', ['class' => 'btn btn-success']) ?>
+                <?= Html::button('Tải lên', ['class' => 'btn btn-success', 'onclick' => 'submit_form(\'upload\')']) ?>
                 <?= Html::a('Quay lại', ['index'], ['class' => 'btn btn-default']) ?>
             </div>
         </div>

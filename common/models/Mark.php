@@ -2,8 +2,6 @@
 
 namespace common\models;
 
-use Yii;
-
 /**
  * This is the model class for table "mark".
  *
@@ -11,10 +9,8 @@ use Yii;
  * @property integer $student_id
  * @property integer $subject_id
  * @property integer $class_id
- * @property integer $type
- * @property integer $part
  * @property integer $semester
- * @property double $mark
+ * @property string $marks
  * @property string $description
  * @property integer $created_at
  * @property integer $updated_at
@@ -23,6 +19,9 @@ use Yii;
  */
 class Mark extends \yii\db\ActiveRecord
 {
+    public $file;
+    public $action;
+
     /**
      * @inheritdoc
      */
@@ -31,11 +30,9 @@ class Mark extends \yii\db\ActiveRecord
         return 'mark';
     }
 
-    public $file;
-
-    public $mieng_1, $mieng_2, $mieng_3, $mieng_4, $mieng_5;
-    public $fm_1, $fm_2, $fm_3, $fm_4, $fm_5;
-    public $mieng1, $mieng2, $mieng3, $mieng4, $mieng5;
+//    public $mieng_1, $mieng_2, $mieng_3, $mieng_4, $mieng_5;
+//    public $fm_1, $fm_2, $fm_3, $fm_4, $fm_5;
+//    public $mieng1, $mieng2, $mieng3, $mieng4, $mieng5;
 
     /**
      * @inheritdoc
@@ -43,10 +40,9 @@ class Mark extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['student_id', 'subject_id', 'class_id', 'type', 'part', 'semester', 'mark'], 'required'],
-            [['student_id', 'subject_id', 'class_id', 'type', 'part', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['mark'], 'number'],
-            [['description'], 'string', 'max' => 500],
+            [['student_id', 'subject_id', 'class_id', 'semester'], 'required'],
+            [['student_id', 'subject_id', 'class_id', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['marks', 'action', 'description', 'file'], 'string', 'max' => 500]
         ];
     }
 
@@ -60,10 +56,8 @@ class Mark extends \yii\db\ActiveRecord
             'student_id' => 'as contact_id',
             'subject_id' => 'Subject ID',
             'class_id' => 'as category_id',
-            'type' => 'Type',
-            'part' => 'Part',
             'semester' => 'Semester',
-            'mark' => 'Mark',
+            'marks' => 'Marks',
             'description' => 'Description',
             'created_at' => 'Created At',
             'updated_at' => 'Updated At',

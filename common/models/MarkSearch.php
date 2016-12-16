@@ -18,8 +18,8 @@ class MarkSearch extends Mark
     public function rules()
     {
         return [
-            [['id', 'student_id', 'subject_id', 'class_id', 'type', 'part', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
-            [['mark'], 'number'],
+            [['id', 'student_id', 'subject_id', 'class_id', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
+            [['marks'], 'string', 'max' => 500],
             [['description'], 'safe'],
         ];
     }
@@ -64,10 +64,8 @@ class MarkSearch extends Mark
             'student_id' => $this->student_id,
             'subject_id' => $this->subject_id,
             'class_id' => $this->class_id,
-            'type' => $this->type,
-            'part' => $this->part,
             'semester' => $this->semester,
-            'mark' => $this->mark,
+            'marks' => $this->marks,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'created_by' => $this->created_by,

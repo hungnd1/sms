@@ -28,8 +28,8 @@ $this->params['breadcrumbs'][] = $this->title;
             <div class="portlet-body">
 
                 <p>
-                    <?php if (!Yii::$app->params['tvod1Only']) echo Html::a("Tải lên điểm môn học", Yii::$app->urlManager->createUrl(['/mark/upload']), ['class' => 'btn btn-success']) ?>
-                    <?php if (!Yii::$app->params['tvod1Only']) echo Html::a("Xuất điểm môn học", Yii::$app->urlManager->createUrl(['/mark/upload']), ['class' => 'btn btn-success']) ?>
+                    <?php if (!Yii::$app->params['tvod1Only']) echo Html::a("Tải lên điểm môn học", Yii::$app->urlManager->createUrl(['/mark/view-upload']), ['class' => 'btn btn-success']) ?>
+                    <?php if (!Yii::$app->params['tvod1Only']) echo Html::a("Xuất điểm môn học", Yii::$app->urlManager->createUrl(['/mark/view-upload']), ['class' => 'btn btn-success']) ?>
                 </p>
 
                 <div style="margin: 25px 0 25px 0">
@@ -79,9 +79,9 @@ $this->params['breadcrumbs'][] = $this->title;
                             'label' => 'Tên học sinh',
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
-                            'value' => function ($searchModel) {
-                                return $searchModel->id;
-
+                            'value' => function ($model) {
+                                $student = \common\models\ContactDetail::findOne($model->student_id);
+                                return $student->fullname;
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -95,8 +95,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[0], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[0];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -109,8 +111,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[1], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[1];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -123,8 +127,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[2], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[2];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -137,8 +143,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[3], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[3];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -151,8 +159,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[4], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[4];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -166,8 +176,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[5], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[5];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -180,8 +192,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[6], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[6];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -194,8 +208,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[7], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[7];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -208,8 +224,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[8], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[8];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -222,8 +240,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[9], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[9];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -237,8 +257,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[10], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[10];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -251,8 +273,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[11], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[11];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -265,8 +289,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[12], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[12];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -279,8 +305,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[13], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[13];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -293,8 +321,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[14], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[14];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -308,8 +338,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[15], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[15];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -323,8 +355,10 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
-
+                                if (strcmp(explode(';', $model->marks)[16], 'N') == 0) {
+                                    return '';
+                                }
+                                return explode(';', $model->marks)[16];
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
                             'mergeHeader' => true,
@@ -338,7 +372,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'class' => '\kartik\grid\DataColumn',
                             'attribute' => 'id',
                             'value' => function ($model) {
-                                return $model->id;
+                                return '';
 
                             },
                             'headerOptions' => ['style' => 'text-align:center'],
