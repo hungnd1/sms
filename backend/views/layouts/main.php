@@ -224,7 +224,7 @@ $this->registerJs("Layout.init();");
                 [
                     'encode' => false,
                     'label' => '<i class="fa fa-server"></i> Điểm tổng kết',
-                    'url' => ['subject/index'],
+                    'url' => ['mark-summary/index'],
                     'require_auth' => true,
                 ],
             ]

@@ -184,8 +184,6 @@ class MarkController extends Controller
                         $highestRow = $item->getHighestRow();
                         $highestColumn = $item->getHighestColumn();
 
-                        echo $highestRow. ' '.$highestColumn;
-
                         for ($row = 11; $row <= $highestRow; $row++) {
 
                             $rowData = $item->rangeToArray('A' . $row . ':' . $highestColumn . $row, null, true, false);
