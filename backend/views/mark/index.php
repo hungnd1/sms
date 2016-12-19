@@ -5,7 +5,7 @@ use yii\helpers\Html;
 
 
 /* @var $this yii\web\View */
-/* @var $searchModel common\models\MarkSearch */
+/* @var $model common\models\Mark */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Điểm môn học';
@@ -34,13 +34,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <div style="margin: 25px 0 25px 0">
                     <?= $this->render('_search', [
-                        'model' => $searchModel,
+                        'model' => $model,
                     ]) ?>
                 </div>
                 <?= GridView::widget([
                     'dataProvider' => $dataProvider,
                     'id' => 'grid-subject-id',
-                    'filterModel' => $searchModel,
                     'responsive' => true,
                     'pjax' => true,
                     'hover' => true,
