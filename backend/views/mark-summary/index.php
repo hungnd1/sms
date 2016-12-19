@@ -4,11 +4,74 @@ use kartik\grid\GridView;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $searchModel common\models\MarkSummarySearch */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 $this->title = 'Điểm tổng kết';
 $this->params['breadcrumbs'][] = $this->title;
+?>
+
+<?php
+$column = array(
+    // Checkbox
+    [
+        'class' => '\kartik\grid\CheckboxColumn',
+        'width' => '5%'
+    ],
+    // STT
+    [
+        'class' => '\kartik\grid\SerialColumn',
+        'header' => 'STT',
+        'width' => '5%'
+    ],
+    // Name
+    [
+        'format' => 'raw',
+        'label' => 'Tên học sinh',
+        'class' => '\kartik\grid\DataColumn',
+        'value' => function ($model) {
+            $student = \common\models\ContactDetail::findOne($model->student_id);
+            return $student->fullname;
+        },
+        'headerOptions' => ['style' => 'text-align:center'],
+        'mergeHeader' => true,
+        'enableSorting' => false,
+        'width' => '15%'
+    ],
+    // Điểm tổng kết
+    [
+        'format' => 'raw',
+        'label' => 'Điểm tổng kết',
+        'class' => '\kartik\grid\DataColumn',
+        'value' => function ($model) {
+            return '';
+        },
+        'headerOptions' => ['style' => 'text-align:center'],
+        'mergeHeader' => true,
+        'enableSorting' => false,
+    ]
+);
+
+// add mark summary for subject
+foreach ($subjects as $subject) {
+    array_push($column, [
+        'format' => 'raw',
+        'label' => $subject->name,
+        'class' => '\kartik\grid\DataColumn',
+        'value' => function ($model) {
+            $marks = explode(';', $model->marks);
+//            foreach ($marks as $mark) {
+//                $tmp = explode(':', $mark);
+//                if($subject->id == $tmp[0]){
+//                    return $tmp[1];
+//                }
+//            }
+            return $model->marks;
+        },
+        'headerOptions' => ['style' => 'text-align:center'],
+        'mergeHeader' => true,
+        'enableSorting' => false,
+    ]);
+}
 ?>
 
 <div class="row">
@@ -33,62 +96,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 <div style="margin: 25px 0 25px 0">
                     <?= $this->render('_search', [
-                        'model' => $searchModel,
+                        'model' => $model,
                     ]) ?>
                 </div>
 
                 <?= GridView::widget([
                     'dataProvider' => $dataProvider,
                     'id' => 'grid-mark-summary-id',
-                    'filterModel' => $searchModel,
                     'responsive' => true,
                     'pjax' => true,
                     'hover' => true,
-
-                    'columns' => [
-                        // Checkbox
-                        [
-                            'class' => '\kartik\grid\CheckboxColumn',
-                            'width' => '5%'
-                        ],
-                        // STT
-                        [
-                            'class' => '\kartik\grid\SerialColumn',
-                            'header' => 'STT',
-                            'width' => '5%'
-                        ],
-                        // Name
-                        [
-                            'format' => 'raw',
-                            'label' => 'Tên học sinh',
-                            'class' => '\kartik\grid\DataColumn',
-                            'attribute' => 'id',
-                            'value' => function ($model) {
-                                $student = \common\models\ContactDetail::findOne($model->student_id);
-                                return $student->fullname;
-                            },
-                            'headerOptions' => ['style' => 'text-align:center'],
-                            'mergeHeader' => true,
-                            'enableSorting' => false,
-                            'width' => '15%'
-                        ],
-                        // Mieng
-                        [
-                            'format' => 'raw',
-                            'label' => 'Điểm tổng kết',
-                            'class' => '\kartik\grid\DataColumn',
-                            'attribute' => 'id',
-                            'value' => function ($model) {
-                                if (strcmp(explode(';', $model->marks)[0], 'N') == 0) {
-                                    return '';
-                                }
-                                return explode(';', $model->marks)[0];
-                            },
-                            'headerOptions' => ['style' => 'text-align:center'],
-                            'mergeHeader' => true,
-                            'enableSorting' => false,
-                        ],
-                    ],
+                    'columns' => $column
                 ]); ?>
             </div>
         </div>

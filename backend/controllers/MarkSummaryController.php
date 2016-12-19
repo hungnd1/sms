@@ -12,6 +12,7 @@ use PHPExcel_Style_Alignment;
 use PHPExcel_Style_Border;
 use PHPExcel_Style_Fill;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -46,9 +47,23 @@ class MarkSummaryController extends Controller
         $searchModel = new MarkSummarySearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
+        $model = new MarkSummary();
+        $subjects = array();
+
+        if($model->load(Yii::$app->request->post())){
+            $subjects = Subject::find()->where(['id' => $model->subject_id])->all();
+            $dataProvider = new ActiveDataProvider([
+                'query' => MarkSummary::find()->where(['class_id' => $model->class_id, 'semester' => $model->semester]),
+            ]);
+        } else {
+            //$marks_summary = MarkSummary::find()->where(['student_id' => $modelSearch->subject_id, 'class_id' => $modelSearch->class_id, 'semester' => $modelSearch->semester])->all();
+        }
+
         return $this->render('index', [
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'subjects' =>  $subjects,
+            'model' => $model,
         ]);
     }
 
@@ -408,18 +423,41 @@ class MarkSummaryController extends Controller
                     )
                 );
 
+                $subjects_column = array();
                 foreach ($subjects as $item) {
                     $sheet->setCellValue(chr($column) . '2', $item->name);
                     $sheet->setCellValue(chr($column) . '3', 'HK' . $model->semester);
                     $sheet->getStyle(chr($column) . '2')->applyFromArray($styleArray);
                     $sheet->getStyle(chr($column) . '3')->applyFromArray($styleArray);
+                    $subjects_column[$item->id] = chr($column);
                     $column++;
                 }
 
                 $row = 0;
+                $students_id = array();
                 foreach ($students as $item) {
+                    array_push($students_id, $item->id);
+                }
+
+                $marks_summary_tmp = MarkSummary::find()->where(['student_id' => $students_id, 'class_id' => $model->class_id, 'semester' => $model->semester])->all();
+                $marks_summary = array();
+                foreach ($marks_summary_tmp as $item) {
+                    $marks_summary[$item->student_id] = $item;
+                }
+
+                foreach ($students as $item) {
+
                     $sheet->setCellValue('A' . ($row + 4), $row + 1);
                     $sheet->setCellValue('B' . ($row + 4), $item->fullname);
+
+                    $marks = $marks_summary[$item->id]->marks;
+                    $marks = explode(';', $marks);
+                    foreach($marks as $mark){
+                        $tmp = explode(':', $mark);
+                        if(isset($subjects_column[$tmp[0]])) {
+                            $sheet->setCellValue($subjects_column[$tmp[0]] . ($row + 4), $tmp[1]);
+                        }
+                    }
                     $row++;
                 }
 

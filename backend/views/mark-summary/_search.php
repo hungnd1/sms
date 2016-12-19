@@ -5,7 +5,7 @@ use kartik\widgets\ActiveForm;
 use kartik\widgets\Select2;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\MarkSummarySearch */
+/* @var $model common\models\MarkSummary */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -13,7 +13,7 @@ use kartik\widgets\Select2;
 
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
-        'method' => 'get',
+        'method' => 'post'
     ]); ?>
 
     <div class="form-group">
@@ -49,8 +49,9 @@ use kartik\widgets\Select2;
                         'data' => \yii\helpers\ArrayHelper::map(\common\models\Subject::find()->all(), 'id', 'name'),
                         'pluginOptions' => [
                             'allowClear' => true,
-                            'width' => '200px'
+                            'width' => '170%'
                         ],
+                        'options' => ['placeholder' => 'Select a subject ...', 'multiple' => true],
                     ])->label('Theo môn học');
                     ?>
                 </td>
