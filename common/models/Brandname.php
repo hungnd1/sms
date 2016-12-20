@@ -96,5 +96,13 @@ class Brandname extends \yii\db\ActiveRecord
     }
 
 
+    public static function getBrandname(){
+
+        $brandname = Brandname::find()
+            ->innerJoin('user','user.brandname_id = brandname.id')
+            ->andWhere(['brandname.status'=>Brandname::STATUS_ACTIVE])
+            ->andWhere(['user.id'=>Yii::$app->user->id])->one();
+        return [$brandname->id => $brandname->brandname];
+    }
 
 }
