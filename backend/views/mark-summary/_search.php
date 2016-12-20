@@ -23,7 +23,7 @@ use kartik\widgets\Select2;
                     <?=
                     $form->field($model, 'semester')->widget(Select2::classname(), [
                         'hideSearch' => true,
-                        'data' => ['1' => 'Học kỳ I', '2' => 'Học kỳ II'],
+                        'data' => [1 => 'Học kỳ I', 2 => 'Học kỳ II'],
                         'pluginOptions' => [
                             'allowClear' => false,
                             'width' => '150px'

@@ -5,10 +5,10 @@ namespace backend\controllers;
 use common\models\Contact;
 use common\models\ContactDetail;
 use common\models\Mark;
-use common\models\MarkSearch;
 use common\models\Subject;
 use PHPExcel_IOFactory;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -40,95 +40,25 @@ class MarkController extends Controller
      */
     public function actionIndex()
     {
+        $dataProvider = array();
         $model = new Mark();
-        if ($model->load(Yii::$app->request->get())) {
-            //var_dump($model);
+
+        if ($model->load(Yii::$app->request->post())) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => Mark::find()->where(['class_id' => $model->class_id, 'semester' => $model->semester, 'subject_id' => $model->subject_id]),
+            ]);
+        } else {
+            $class = Contact::find()->where(['created_by' => Yii::$app->user->id])->all();
+            $subject = Subject::find()->all();
+            $dataProvider = new ActiveDataProvider([
+                'query' => Mark::find()->where(['class_id' => $class[0]->id, 'semester' => 1, 'subject_id' => $subject[0]->id]),
+            ]);
         }
-        $searchModel = new MarkSearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
+            'model' => $model,
         ]);
-    }
-
-    /**
-     * Displays a single Mark model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
-
-    /**
-     * Finds the Mark model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return Mark the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = Mark::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
-    }
-
-    /**
-     * Creates a new Mark model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Mark();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing Mark model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Deletes an existing Mark model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
     }
 
     /**
@@ -237,11 +167,6 @@ class MarkController extends Controller
         }
     }
 
-//    public function check(){
-//        $mark = Mark::findOne(['student_id' => '1', 'subject_id'=>'9','class_id'=>'1', 'semester'=>'1']);
-//        var_dump($mark);
-//    }
-
     /**
      *
      */
@@ -342,5 +267,21 @@ class MarkController extends Controller
         return $this->render('upload', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * Finds the Mark model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return Mark the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = Mark::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
+        }
     }
 }

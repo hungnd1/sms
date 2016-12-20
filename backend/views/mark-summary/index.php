@@ -56,16 +56,18 @@ foreach ($subjects as $subject) {
     array_push($column, [
         'format' => 'raw',
         'label' => $subject->name,
+        'attribute' => $subject->id,
         'class' => '\kartik\grid\DataColumn',
-        'value' => function ($model) {
+        'value' => $subject->name . '',
+        'value' => function ($model, $key, $index, $column) {
             $marks = explode(';', $model->marks);
-//            foreach ($marks as $mark) {
-//                $tmp = explode(':', $mark);
-//                if($subject->id == $tmp[0]){
-//                    return $tmp[1];
-//                }
-//            }
-            return $model->marks;
+            foreach ($marks as $mark) {
+                $tmp = explode(':', $mark);
+                if (strcmp($column->attribute, $tmp[0]) == 0) {
+                    return $tmp[1];
+                }
+            }
+            return $column->attribute;
         },
         'headerOptions' => ['style' => 'text-align:center'],
         'mergeHeader' => true,

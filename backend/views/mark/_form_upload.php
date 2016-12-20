@@ -52,7 +52,14 @@ use yii\helpers\Html;
     </div>
 
     <div class="row">
-        <?= $form->field($model, 'action')->hiddenInput(['id' => 'action', 'value' => 'upload'])->label(false) ?>
+        <div class="form-group field-content-price" style="padding-left: 27%;font-size: 15px;">
+            <?= $form->field($model, 'action')->hiddenInput(['id' => 'action', 'value' => 'upload'])->label(false) ?>
+            <span style="color: #ff4003; font-size: 14px; font-style: italic">Để đảm bảo thông tin được tải lên chính xác, <br>
+                bạn cần điền thông tin vào file mẫu của chúng tôi.<br>
+                Chọn tải file mẫu dưới đây:
+            </span>
+            <p></p>
+        </div>
         <?=
         $form->field($model, 'subject_id')->widget(Select2::classname(), [
             'size' => Select2::MEDIUM,
@@ -86,7 +93,7 @@ use yii\helpers\Html;
     <?=
     $form->field($model, 'semester')->widget(Select2::classname(), [
         'hideSearch' => true,
-        'data' => ['1' => 'Học kỳ I', '2' => 'Học kỳ II'],
+        'data' => [1 => 'Học kỳ I', 2 => 'Học kỳ II'],
         'pluginOptions' => [
             'allowClear' => false,
             'width' => '50%'
@@ -97,7 +104,7 @@ use yii\helpers\Html;
     <?=
     $form->field($model, 'class_id')->widget(Select2::classname(), [
         'id' => 'class_id',
-        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by'=>Yii::$app->user->id])->all(), 'id', 'contact_name'),
+        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by' => Yii::$app->user->id])->all(), 'id', 'contact_name'),
         'pluginOptions' => [
             'allowClear' => true,
             'width' => '50%'

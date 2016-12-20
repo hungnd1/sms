@@ -44,38 +44,27 @@ class MarkSummaryController extends Controller
      */
     public function actionIndex()
     {
-        $searchModel = new MarkSummarySearch();
-        $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
+        $dataProvider = array();
 
         $model = new MarkSummary();
         $subjects = array();
 
-        if($model->load(Yii::$app->request->post())){
+        if ($model->load(Yii::$app->request->post())) {
             $subjects = Subject::find()->where(['id' => $model->subject_id])->all();
             $dataProvider = new ActiveDataProvider([
                 'query' => MarkSummary::find()->where(['class_id' => $model->class_id, 'semester' => $model->semester]),
             ]);
         } else {
-            //$marks_summary = MarkSummary::find()->where(['student_id' => $modelSearch->subject_id, 'class_id' => $modelSearch->class_id, 'semester' => $modelSearch->semester])->all();
+            $class = Contact::find()->where(['created_by'=>Yii::$app->user->id])->all();
+            $dataProvider = new ActiveDataProvider([
+                'query' => MarkSummary::find()->where(['class_id' => $class[0]->id, 'semester' => 1]),
+            ]);
         }
 
         return $this->render('index', [
-            'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
-            'subjects' =>  $subjects,
+            'subjects' => $subjects,
             'model' => $model,
-        ]);
-    }
-
-    /**
-     * Displays a single MarkSummary model.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionView($id)
-    {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
         ]);
     }
 
@@ -93,56 +82,6 @@ class MarkSummaryController extends Controller
         } else {
             throw new NotFoundHttpException('The requested page does not exist.');
         }
-    }
-
-    /**
-     * Creates a new MarkSummary model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new MarkSummary();
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('create', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Updates an existing MarkSummary model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        } else {
-            return $this->render('update', [
-                'model' => $model,
-            ]);
-        }
-    }
-
-    /**
-     * Deletes an existing MarkSummary model.
-     * If deletion is successful, the browser will be redirected to the 'index' page.
-     * @param integer $id
-     * @return mixed
-     */
-    public function actionDelete($id)
-    {
-        $this->findModel($id)->delete();
-
-        return $this->redirect(['index']);
     }
 
     /**
@@ -305,7 +244,7 @@ class MarkSummaryController extends Controller
 
                 // set semester
                 $title_ = $sheet->getCell('A1')->getValue();
-                $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester = '1' ? "1" : "2", $title_));
+                $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
 
                 // set subject
                 $year = date("Y") . '-' . (intval(date("Y")) + 1);
@@ -319,7 +258,7 @@ class MarkSummaryController extends Controller
 
                 // set sheet name
                 $title_ = $sheet->getTitle();
-                $sheet->setTitle($title_ = str_replace("semester", $model->semester = '1' ? "1" : "2", $title_));
+                $sheet->setTitle($title_ = str_replace("semester", $model->semester == 1 ? "1" : "2", $title_));
                 $sheet->setTitle($title_ = str_replace("class", $class->contact_name, $title_));
 
                 $column = ord('D');
@@ -348,7 +287,7 @@ class MarkSummaryController extends Controller
                 // set file name upload
                 $file_name_upload = "Điểm_Tổngkết_";
                 $file_name_upload = $file_name_upload . $class->contact_name . "_";
-                $file_name_upload = $file_name_upload . ($model->semester = '1' ? "HK1_" : "HK2_");
+                $file_name_upload = $file_name_upload . ($model->semester == 1 ? "HK1_" : "HK2_");
                 $file_name_upload = $file_name_upload . $year;
                 $file_name_upload = $file_name_upload . "_Upload.xls";
 
@@ -371,7 +310,7 @@ class MarkSummaryController extends Controller
     }
 
     /**
-     *
+     * export mark summary
      */
     public function actionExport()
     {
@@ -395,16 +334,16 @@ class MarkSummaryController extends Controller
 
                 // set semester
                 $title_ = $sheet->getCell('A1')->getValue();
-                $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester = '1' ? "1" : "2", $title_));
+                $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
                 $sheet->setCellValue('A1', $title_ = str_replace("[class]", $class->contact_name, $title_));
-                $sheet->mergeCells('A1:' . chr(ord('B') + count($subjects)) . '1');
+                $sheet->mergeCells('A1:' . chr(ord('C') + count($subjects)) . '1');
                 $sheet->getStyle('A1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
                 // set sheet name
                 $sheet->setTitle("TKHK" . $model->semester . '-' . $class->contact_name);
 
-                $column = ord('C');
-                $styleArray = array(
+                $column = ord('D');
+                $styleHeader = array(
                     'fill' => array(
                         'type' => PHPExcel_Style_Fill::FILL_SOLID,
                         'color' => array('rgb' => '0070C0')
@@ -414,7 +353,7 @@ class MarkSummaryController extends Controller
                         'size' => 13
                     ),
                     'alignment' => array(
-                        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                        'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER
                     ),
                     'borders' => array(
                         'allborders' => array(
@@ -423,12 +362,25 @@ class MarkSummaryController extends Controller
                     )
                 );
 
+                $styleRow = array(
+                    'font' => array(
+                        'size' => 13
+                    ),
+                );
+
+                // set mark summary
+                $sheet->setCellValue('C2', 'Điểm tổng kết');
+                $sheet->setCellValue('C3', 'HK' . $model->semester);
+                $sheet->getStyle('C2')->applyFromArray($styleHeader);
+                $sheet->getStyle('C3')->applyFromArray($styleHeader);
+
+                // set mark summary subject
                 $subjects_column = array();
                 foreach ($subjects as $item) {
                     $sheet->setCellValue(chr($column) . '2', $item->name);
                     $sheet->setCellValue(chr($column) . '3', 'HK' . $model->semester);
-                    $sheet->getStyle(chr($column) . '2')->applyFromArray($styleArray);
-                    $sheet->getStyle(chr($column) . '3')->applyFromArray($styleArray);
+                    $sheet->getStyle(chr($column) . '2')->applyFromArray($styleHeader);
+                    $sheet->getStyle(chr($column) . '3')->applyFromArray($styleHeader);
                     $subjects_column[$item->id] = chr($column);
                     $column++;
                 }
@@ -449,13 +401,21 @@ class MarkSummaryController extends Controller
 
                     $sheet->setCellValue('A' . ($row + 4), $row + 1);
                     $sheet->setCellValue('B' . ($row + 4), $item->fullname);
+                    $sheet->getStyle('A' . ($row + 4))->applyFromArray($styleRow);
+                    $sheet->getStyle('B' . ($row + 4))->applyFromArray($styleRow);
+
+                    if (!isset($marks_summary[$item->id])) {
+                        $row++;
+                        continue;
+                    }
 
                     $marks = $marks_summary[$item->id]->marks;
                     $marks = explode(';', $marks);
-                    foreach($marks as $mark){
+                    foreach ($marks as $mark) {
                         $tmp = explode(':', $mark);
-                        if(isset($subjects_column[$tmp[0]])) {
+                        if (isset($subjects_column[$tmp[0]])) {
                             $sheet->setCellValue($subjects_column[$tmp[0]] . ($row + 4), $tmp[1]);
+                            $sheet->getStyle($subjects_column[$tmp[0]] . ($row + 4))->applyFromArray($styleRow);
                         }
                     }
                     $row++;

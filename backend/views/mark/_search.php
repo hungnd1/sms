@@ -5,7 +5,7 @@ use kartik\widgets\Select2;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $model common\models\MarkSearch */
+/* @var $model common\models\Mark */
 /* @var $form yii\widgets\ActiveForm */
 ?>
 
@@ -13,7 +13,7 @@ use yii\helpers\Html;
 
     <?php $form = ActiveForm::begin([
         'action' => ['index'],
-        'method' => 'get',
+        'method' => 'post',
     ]); ?>
 
     <div class="form-group">
@@ -23,7 +23,7 @@ use yii\helpers\Html;
                     <?=
                     $form->field($model, 'semester')->widget(Select2::classname(), [
                         'hideSearch' => true,
-                        'data' => ['1' => 'Học kỳ I', '2' => 'Học kỳ II'],
+                        'data' => [1 => 'Học kỳ I', 2 => 'Học kỳ II'],
                         'pluginOptions' => [
                             'allowClear' => false,
                             'width' => '150px'
