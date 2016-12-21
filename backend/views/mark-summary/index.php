@@ -66,7 +66,7 @@ foreach ($dataSubject as $subject) {
                     return $tmp[1];
                 }
             }
-            return $column->attribute;
+            return '';
         },
         'headerOptions' => ['style' => 'text-align:center'],
         'mergeHeader' => true,

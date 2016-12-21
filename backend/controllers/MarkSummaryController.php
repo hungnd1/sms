@@ -181,9 +181,7 @@ class MarkSummaryController extends Controller
                         $mark_str = '';
                         for ($i = 3; $i < 3 + count($subjects); $i++) {
 
-                            if (is_null($rowData[0][$i])) {
-                                $mark_str = $mark_str . $sheet->getCell(chr(ord('A') + $i) . '10')->getValue() . ':N;';
-                            } else {
+                            if (!is_null($rowData[0][$i])) {
                                 $mark_str = $mark_str . $sheet->getCell(chr(ord('A') + $i) . '10')->getValue() . ':' . $rowData[0][$i] . ';';
                             }
                         }
@@ -268,6 +266,11 @@ class MarkSummaryController extends Controller
                     'fill' => array(
                         'type' => PHPExcel_Style_Fill::FILL_SOLID,
                         'color' => array('rgb' => '0070C0')
+                    ),
+                    'borders' => array(
+                        'allborders' => array(
+                            'style' => PHPExcel_Style_Border::BORDER_THIN
+                        )
                     )
                 );
 
