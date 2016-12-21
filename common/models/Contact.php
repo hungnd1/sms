@@ -31,6 +31,23 @@ class Contact extends \yii\db\ActiveRecord
     }
 
     /**
+     * @return array|null|\yii\db\ActiveRecord[]
+     */
+    public static function getAllClasses()
+    {
+        $dataContact = null;
+        $user = User::findOne(Yii::$app->user->id);
+        $user_parent = User::findOne($user->created_by);
+
+        $dataContact = Contact::find()
+            ->where(['created_by' => [$user->id, is_null($user_parent) ? '' : $user_parent->id]])
+            ->andWhere(['not', ['path' => null]])
+            ->all();
+
+        return $dataContact;
+    }
+
+    /**
      * @inheritdoc
      */
     public function rules()
@@ -76,23 +93,5 @@ class Contact extends \yii\db\ActiveRecord
             self::STATUS_ACTIVE => 'Hoạt động',
             self::STATUS_INACTIVE => 'Không hoạt động',
         ];
-    }
-
-
-    /**
-     * @return array|null|\yii\db\ActiveRecord[]
-     */
-    public static function getAllClasses()
-    {
-        $dataContact = null;
-        $user = User::findOne(Yii::$app->user->id);
-        $user_parent = User::findOne($user->created_by);
-
-        $dataContact = Contact::find()
-            ->where(['created_by' => [$user->id, $user_parent->id]])
-            ->andWhere(['not', ['path' => null]])
-            ->all();
-
-        return $dataContact;
     }
 }

@@ -235,6 +235,46 @@ $this->registerJs("Layout.init();");
                 ],
             ]
         ],
+        [
+            'label' => 'Quản lý kỳ thi',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Tạo mới kỳ thi',
+                    'url' => ['subject/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Điểm kỳ thi',
+                    'url' => ['mark/index'],
+                    'require_auth' => true,
+                ],
+            ]
+        ],
+        [
+            'label' => 'Quản lý năm học',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Tác vụ năm học',
+                    'url' => ['subject/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Lịch sử lên lớp',
+                    'url' => ['mark/index'],
+                    'require_auth' => true,
+                ],
+            ]
+        ],
     ];
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
