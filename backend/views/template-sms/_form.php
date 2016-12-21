@@ -56,7 +56,7 @@ use yii\helpers\Html;
     </div>
     <br>
     <?= $form->field($model, 'template_content',  ['options' => ['class' => 'col-xs-12',
-        'onchange' => "countChar();"]])->textarea(['rows' => 6]) ?>
+        'onkeyup' => "countChar();"]])->textarea(['rows' => 6]) ?>
 
 
 
@@ -78,8 +78,6 @@ use yii\helpers\Html;
     <?php ActiveForm::end(); ?>
 
     <script>
-
-
         function insertEmoticonAtTextareaCursor(ID,text) {
             ID="insertPattern";
             var message = $('textarea#templatesms-template_content').val();

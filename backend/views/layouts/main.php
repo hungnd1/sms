@@ -179,6 +179,12 @@ $this->registerJs("Layout.init();");
                     'url' => ['template-sms/index'],
                     'require_auth' => true,
                 ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Gửi tin theo danh bạ',
+                    'url' => ['history-contact/index'],
+                    'require_auth' => true,
+                ],
 
             ]
         ],
