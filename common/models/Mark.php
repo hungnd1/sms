@@ -30,17 +30,13 @@ class Mark extends \yii\db\ActiveRecord
         return 'mark';
     }
 
-//    public $mieng_1, $mieng_2, $mieng_3, $mieng_4, $mieng_5;
-//    public $fm_1, $fm_2, $fm_3, $fm_4, $fm_5;
-//    public $mieng1, $mieng2, $mieng3, $mieng4, $mieng5;
-
     /**
      * @inheritdoc
      */
     public function rules()
     {
         return [
-            [['student_id', 'subject_id', 'class_id', 'semester'], 'required'],
+            [[], 'required'],
             [['student_id', 'subject_id', 'class_id', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['marks', 'action', 'description', 'file'], 'string', 'max' => 500]
         ];

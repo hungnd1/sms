@@ -18,6 +18,10 @@ use Yii;
  */
 class Contact extends \yii\db\ActiveRecord
 {
+    const STATUS_ACTIVE = 10;
+    const STATUS_INACTIVE = 0;
+    public $file;
+
     /**
      * @inheritdoc
      */
@@ -25,10 +29,6 @@ class Contact extends \yii\db\ActiveRecord
     {
         return 'contact';
     }
-    public $file;
-
-    const STATUS_ACTIVE = 10;
-    const STATUS_INACTIVE = 0;
 
     /**
      * @inheritdoc
@@ -36,8 +36,8 @@ class Contact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['contact_name'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['description','file'], 'string'],
+            [['contact_name'], 'required', 'message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
+            [['description', 'file'], 'string'],
             [['status', 'created_at', 'updated_at', 'path', 'created_by'], 'integer'],
             [['contact_name'], 'string', 'max' => 500],
         ];
@@ -61,16 +61,6 @@ class Contact extends \yii\db\ActiveRecord
         ];
     }
 
-    public static function getListStatus()
-    {
-        return [
-            self::STATUS_ACTIVE   => 'Hoạt động',
-            self::STATUS_INACTIVE => 'Không hoạt động',
-        ];
-    }
-
-
-
     public function getStatusName()
     {
         $listStatus = self::getListStatus();
@@ -78,5 +68,31 @@ class Contact extends \yii\db\ActiveRecord
             return $listStatus[$this->status];
         }
         return '';
+    }
+
+    public static function getListStatus()
+    {
+        return [
+            self::STATUS_ACTIVE => 'Hoạt động',
+            self::STATUS_INACTIVE => 'Không hoạt động',
+        ];
+    }
+
+
+    /**
+     * @return array|null|\yii\db\ActiveRecord[]
+     */
+    public static function getAllClasses()
+    {
+        $dataContact = null;
+        $user = User::findOne(Yii::$app->user->id);
+        $user_parent = User::findOne($user->created_by);
+
+        $dataContact = Contact::find()
+            ->where(['created_by' => [$user->id, $user_parent->id]])
+            ->andWhere(['not', ['path' => null]])
+            ->all();
+
+        return $dataContact;
     }
 }

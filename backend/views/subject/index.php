@@ -80,6 +80,7 @@ $this->params['breadcrumbs'][] = 'Danh sách môn học';
                         ],
                         [
                             'class' => 'kartik\grid\ActionColumn',
+                            'template' => '{view} {update}',
                         ],
                     ],
                 ]); ?>

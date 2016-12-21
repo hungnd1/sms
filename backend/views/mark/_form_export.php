@@ -50,12 +50,10 @@ use yii\helpers\Html;
 
     <?=
     $form->field($model, 'subject_id')->widget(Select2::classname(), [
-        'size' => Select2::MEDIUM,
         'data' => \yii\helpers\ArrayHelper::map(\common\models\Subject::find()->all(), 'id', 'name'),
         'pluginOptions' => [
             'allowClear' => true,
         ],
-        'options' => ['placeholder' => 'Select a subject ...', 'multiple' => true],
     ])->label('Chọn môn học');
     ?>
 

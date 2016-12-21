@@ -47,18 +47,17 @@ $column = array(
         },
         'headerOptions' => ['style' => 'text-align:center'],
         'mergeHeader' => true,
-        'enableSorting' => false,
+        'enableSorting' => false
     ]
 );
 
 // add mark summary for subject
-foreach ($subjects as $subject) {
+foreach ($dataSubject as $subject) {
     array_push($column, [
         'format' => 'raw',
         'label' => $subject->name,
         'attribute' => $subject->id,
         'class' => '\kartik\grid\DataColumn',
-        'value' => $subject->name . '',
         'value' => function ($model, $key, $index, $column) {
             $marks = explode(';', $model->marks);
             foreach ($marks as $mark) {
@@ -99,6 +98,7 @@ foreach ($subjects as $subject) {
                 <div style="margin: 25px 0 25px 0">
                     <?= $this->render('_search', [
                         'model' => $model,
+                        'dataContact' => $dataContact,
                     ]) ?>
                 </div>
 

@@ -9,7 +9,9 @@ use common\models\Subject;
 use PHPExcel_IOFactory;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
@@ -40,24 +42,38 @@ class MarkController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = array();
+        $dataProvider = new ArrayDataProvider();
         $model = new Mark();
+        $classes = Contact::getAllClasses();
+        $subjects = Subject::find()->all();
+        $dataContact = ArrayHelper::map($classes, 'id', 'contact_name');
+        $dataSubject = ArrayHelper::map($subjects, 'id', 'name');
+
+        if (count($classes) < 1) {
+            Yii::$app->getSession()->setFlash('error', 'Lớp chưa được tạo trên hệ thống');
+        }
+
+        if (count($subjects) < 1) {
+            Yii::$app->getSession()->setFlash('error', 'Môn học chưa được tạo trên hệ thống');
+        }
+
+        if (count($classes) > 0 && count($subjects) > 0) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => Mark::find()->where(['class_id' => $classes[0]->id, 'semester' => 1, 'subject_id' => $subjects[0]->id]),
+            ]);
+        }
 
         if ($model->load(Yii::$app->request->post())) {
             $dataProvider = new ActiveDataProvider([
                 'query' => Mark::find()->where(['class_id' => $model->class_id, 'semester' => $model->semester, 'subject_id' => $model->subject_id]),
-            ]);
-        } else {
-            $class = Contact::find()->where(['created_by' => Yii::$app->user->id])->all();
-            $subject = Subject::find()->all();
-            $dataProvider = new ActiveDataProvider([
-                'query' => Mark::find()->where(['class_id' => $class[0]->id, 'semester' => 1, 'subject_id' => $subject[0]->id]),
             ]);
         }
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'model' => $model,
+            'dataContact' => $dataContact,
+            'dataSubject' => $dataSubject,
         ]);
     }
 
@@ -66,10 +82,8 @@ class MarkController extends Controller
      */
     public function actionUpload()
     {
-
         $model = new Mark();
         $check = 0;
-
         $post = Yii::$app->request->post();
 
         // download template
@@ -108,6 +122,13 @@ class MarkController extends Controller
                     $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
                     $objPHPExcel = $objReader->load($tmp . $file_name);
                     $sheets = $objPHPExcel->getAllSheets();
+
+                    // validate class
+                    $class = Contact::findOne($model->class_id);
+                    if (is_null($class)) {
+                        Yii::$app->getSession()->setFlash('error', 'Lớp chưa tạo trên hệ thống');
+                        return $this->redirect(['index']);
+                    }
 
                     foreach ($sheets as $item) {
 
@@ -152,7 +173,6 @@ class MarkController extends Controller
 
                     if ($check) {
                         Yii::$app->getSession()->setFlash('success', 'Upload thành công');
-                        return $this->redirect(['index']);
                     } else {
                         Yii::$app->getSession()->setFlash('error', 'Upload không thành công');
                     }
@@ -165,10 +185,11 @@ class MarkController extends Controller
                 ]);
             }
         }
+        return $this->redirect(['index']);
     }
 
     /**
-     *
+     * download template for upload action
      */
     public function downloadTemplate($model)
     {
@@ -187,29 +208,38 @@ class MarkController extends Controller
                 $sheet = clone $objPHPExcel->getSheet(0);
                 $objPHPExcel->removeSheetByIndex(0);
 
+                // validate choose subject
                 if (!is_array($model->subject_id)) {
                     Yii::$app->getSession()->setFlash('error', 'Bạn chưa chọn môn học để tải file mẫu');
                     return;
                 }
 
-                for ($i = 0; $i < count($model->subject_id); $i++) {
+                // validate class
+                $class = Contact::findOne($model->class_id);
+                if (is_null($class)) {
+                    Yii::$app->getSession()->setFlash('error', 'Lớp chưa tạo trên hệ thống');
+                    return;
+                }
+
+                // find
+                $subjects = Subject::find()->where(['id' => $model->subject_id])->all();
+                $students = ContactDetail::find()->where(['contact_id' => $model->class_id])->all();
+
+                foreach ($subjects as $subject) {
 
                     $sheet_ = clone $sheet;
 
-                    $subject = Subject::findOne($model->subject_id[$i]);
-                    $class = Contact::findOne($model->class_id);
-                    $students = ContactDetail::find()->where(['contact_id' => $model->class_id])->all();
-
                     // set school
+                    $school = Contact::findOne($class->path);
                     $title_ = $sheet_->getCell('A2')->getValue();
-                    $sheet_->setCellValue('A2', str_replace("[school]", "CVA3", $title_));
+                    $sheet_->setCellValue('A2', str_replace("[school]", $school->contact_name, $title_));
 
                     // set subject
                     $year = date("Y") . '-' . (intval(date("Y")) + 1);
                     $title_ = $sheet_->getCell('A3')->getValue();
                     $sheet_->setCellValue('A3', $title_ = str_replace("[subject]", $subject->name, $title_));
                     $sheet_->setCellValue('A3', $title_ = str_replace("[class]", $class->contact_name, $title_));
-                    $sheet_->setCellValue('A3', $title_ = str_replace("[semester]", $model->semester = '1' ? "1" : "2", $title_));
+                    $sheet_->setCellValue('A3', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
                     $sheet_->setCellValue('A3', $title_ = str_replace("[year]", $year, $title_));
 
                     // set sheet name
@@ -234,7 +264,7 @@ class MarkController extends Controller
                     $file_name_upload = $file_name_upload . $subject->name . "_";
                 }
                 $file_name_upload = $file_name_upload . $class->contact_name . "_";
-                $file_name_upload = $file_name_upload . ($model->semester = '1' ? "HK1_" : "HK2_");
+                $file_name_upload = $file_name_upload . ($model->semester == 1 ? "HK1_" : "HK2_");
                 $file_name_upload = $file_name_upload . $year;
                 $file_name_upload = $file_name_upload . "_Upload.xls";
 
@@ -267,6 +297,126 @@ class MarkController extends Controller
         return $this->render('upload', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * view page export mark
+     */
+    public function actionViewExport()
+    {
+        $model = new Mark();
+        $model->setScenario('admin_create_update');
+        return $this->render('export', [
+            'model' => $model,
+        ]);
+    }
+
+    /**
+     * export mark summary
+     */
+    public function actionExport()
+    {
+        $model = new Mark();
+        $file_name = 'Mark_Export.xls';
+        $tmp = Yii::getAlias('@backend') . '/web/' . Yii::getAlias('@file_template') . '/';
+        $file = $tmp . $file_name;
+
+        if (file_exists($file) && $model->load(Yii::$app->request->post())) {
+
+            try {
+
+                $inputFileType = \PHPExcel_IOFactory::identify($tmp . $file_name);
+                $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+                $objPHPExcel = $objReader->load($tmp . $file_name);
+                $sheet_ = $objPHPExcel->getSheet(0);
+
+                $subject = Subject::findOne($model->subject_id);
+                $class = Contact::findOne($model->class_id);
+                $students = ContactDetail::find()->where(['contact_id' => $model->class_id])->all();
+
+                // validate choose subject
+                if (!is_array($model->class_id)) {
+                    Yii::$app->getSession()->setFlash('error', 'Bạn chưa chọn môn học');
+                    return $this->redirect(['index']);
+                }
+
+                // validate choose subject
+                if (!is_array($model->subject_id)) {
+                    Yii::$app->getSession()->setFlash('error', 'Bạn chưa chọn lớp');
+                    return $this->redirect(['index']);
+                }
+
+
+                // set school
+                $school = Contact::findOne($class->path);
+                $title_ = $sheet_->getCell('A2')->getValue();
+                $sheet_->setCellValue('A2', str_replace("[school]", $school->contact_name, $title_));
+
+                // set subject
+                $year = date("Y") . '-' . (intval(date("Y")) + 1);
+                $title_ = $sheet_->getCell('A3')->getValue();
+                $sheet_->setCellValue('A3', $title_ = str_replace("[subject]", $subject->name, $title_));
+                $sheet_->setCellValue('A3', $title_ = str_replace("[class]", $class->contact_name, $title_));
+                $sheet_->setCellValue('A3', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
+                $sheet_->setCellValue('A3', $title_ = str_replace("[year]", $year, $title_));
+
+                // set sheet name
+                $title_ = $sheet_->getTitle();
+                $sheet_->setTitle($title_ = str_replace("subject", $subject->name, $title_));
+                $sheet_->setTitle($title_ = str_replace("class", $class->contact_name, $title_));
+
+                $marks_tmp = Mark::find()->where(['subject_id' => $model->subject_id, 'class_id' => $model->class_id, 'semester' => $model->semester])->all();
+                $marks = array();
+                foreach ($marks_tmp as $item) {
+                    $marks[$item->student_id] = $item;
+                }
+
+                $row = 1;
+                foreach ($students as $item) {
+                    $sheet_->setCellValue('A' . ($row + 5), $row);
+                    $sheet_->setCellValue('B' . ($row + 5), $item->fullname);
+
+                    if (!isset($marks[$item->id])) {
+                        $row++;
+                        continue;
+                    }
+
+                    $marks_ = $marks[$item->id]->marks;
+                    $marks_ = explode(';', $marks_);
+                    for ($i = 0; $i < count($marks_); $i++) {
+                        $tmp = '';
+                        if (strcmp($marks_[$i], 'N') != 0) {
+                            $tmp = $marks_[$i];
+                        }
+                        $sheet_->setCellValue(chr(ord('C') + $i) . ($row + 5), $tmp);
+                    }
+                    $row++;
+                }
+
+                // set file name upload
+                $file_name_upload = "Điểm_";
+                $file_name_upload = $file_name_upload . $subject->name . "_";
+                $file_name_upload = $file_name_upload . $class->contact_name . "_";
+                $file_name_upload = $file_name_upload . ($model->semester == 1 ? "HK1_" : "HK2_");
+                $file_name_upload = $file_name_upload . $year . '.xls';
+
+                header("Content-Length: " . filesize($file));
+                header("Content-type: application/octet-stream");
+                header("Content-disposition: attachment; filename=" . basename($file_name_upload));
+                header('Expires: 0');
+                header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+                ob_clean();
+                flush();
+
+                $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+                $objWriter->save('php://output');
+
+            } catch (Exception $ex) {
+            }
+        } else {
+            Yii::$app->getSession()->setFlash('error', 'File is not exits');
+        }
+        return $this->redirect(['index']);
     }
 
     /**

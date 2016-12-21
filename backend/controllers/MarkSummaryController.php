@@ -5,7 +5,6 @@ namespace backend\controllers;
 use common\models\Contact;
 use common\models\ContactDetail;
 use common\models\MarkSummary;
-use common\models\MarkSummarySearch;
 use common\models\Subject;
 use PHPExcel_IOFactory;
 use PHPExcel_Style_Alignment;
@@ -13,7 +12,9 @@ use PHPExcel_Style_Border;
 use PHPExcel_Style_Fill;
 use Yii;
 use yii\data\ActiveDataProvider;
+use yii\data\ArrayDataProvider;
 use yii\filters\VerbFilter;
+use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\web\UploadedFile;
@@ -44,44 +45,35 @@ class MarkSummaryController extends Controller
      */
     public function actionIndex()
     {
-        $dataProvider = array();
-
+        $dataProvider = new ArrayDataProvider();
         $model = new MarkSummary();
-        $subjects = array();
+        $dataSubject = array();
+        $classes = Contact::getAllClasses();
+        $dataContact = ArrayHelper::map($classes, 'id', 'contact_name');
+
+        if (count($classes) < 1) {
+            Yii::$app->getSession()->setFlash('error', 'Lớp chưa được tạo trên hệ thống');
+        }
+
+        if (count($classes) > 0) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => MarkSummary::find()->where(['class_id' => $classes[0]->id, 'semester' => 1]),
+            ]);
+        }
 
         if ($model->load(Yii::$app->request->post())) {
-            $subjects = Subject::find()->where(['id' => $model->subject_id])->all();
+            $dataSubject = Subject::find()->where(['id' => $model->subject_id])->all();
             $dataProvider = new ActiveDataProvider([
                 'query' => MarkSummary::find()->where(['class_id' => $model->class_id, 'semester' => $model->semester]),
-            ]);
-        } else {
-            $class = Contact::find()->where(['created_by'=>Yii::$app->user->id])->all();
-            $dataProvider = new ActiveDataProvider([
-                'query' => MarkSummary::find()->where(['class_id' => $class[0]->id, 'semester' => 1]),
             ]);
         }
 
         return $this->render('index', [
             'dataProvider' => $dataProvider,
-            'subjects' => $subjects,
+            'dataSubject' => $dataSubject,
             'model' => $model,
+            'dataContact' => $dataContact,
         ]);
-    }
-
-    /**
-     * Finds the MarkSummary model based on its primary key value.
-     * If the model is not found, a 404 HTTP exception will be thrown.
-     * @param integer $id
-     * @return MarkSummary the loaded model
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    protected function findModel($id)
-    {
-        if (($model = MarkSummary::findOne($id)) !== null) {
-            return $model;
-        } else {
-            throw new NotFoundHttpException('The requested page does not exist.');
-        }
     }
 
     /**
@@ -151,22 +143,25 @@ class MarkSummaryController extends Controller
                 }
 
                 try {
+                    // validate class
+                    $class = Contact::findOne($model->class_id);
+                    if (is_null($class)) {
+                        Yii::$app->getSession()->setFlash('error', 'Lớp chưa tạo trên hệ thống');
+                        return $this->redirect(['index']);
+                    }
+
                     $inputFileType = \PHPExcel_IOFactory::identify($tmp . $file_name);
                     $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
                     $objPHPExcel = $objReader->load($tmp . $file_name);
                     $sheet = $objPHPExcel->getSheet(0);
 
                     $highestRow = $sheet->getHighestRow();
-                    //$highestColumn = $sheet->getHighestColumn();
-
                     $subjects = Subject::find()->all();
                     $count = count($subjects);
 
                     for ($row = 12; $row <= $highestRow; $row++) {
 
                         $rowData = $sheet->rangeToArray('A' . $row . ':' . chr($count + ord('C')) . $row, null, true, false);
-
-                        var_dump($rowData);
 
                         $mark_summary = MarkSummary::findOne(['student_id' => $rowData[0][1], 'class_id' => $model->class_id, 'semester' => $model->semester]);
 
@@ -202,7 +197,6 @@ class MarkSummaryController extends Controller
 
                     if ($check) {
                         Yii::$app->getSession()->setFlash('success', 'Upload thành công');
-                        return $this->redirect(['index']);
                     } else {
                         Yii::$app->getSession()->setFlash('error', 'Upload không thành công');
                     }
@@ -215,6 +209,7 @@ class MarkSummaryController extends Controller
                 ]);
             }
         }
+        return $this->redirect(['index']);
     }
 
     /**
@@ -242,6 +237,12 @@ class MarkSummaryController extends Controller
                 $class = Contact::findOne($model->class_id);
                 $students = ContactDetail::find()->where(['contact_id' => $model->class_id])->all();
 
+                // validate class
+                if (is_null($class)) {
+                    Yii::$app->getSession()->setFlash('error', 'Lớp chưa tạo trên hệ thống');
+                    return;
+                }
+
                 // set semester
                 $title_ = $sheet->getCell('A1')->getValue();
                 $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
@@ -253,8 +254,9 @@ class MarkSummaryController extends Controller
                 $sheet->setCellValue('A2', $title_ = str_replace("[year]", $year, $title_));
 
                 // set school
+                $school = Contact::findOne($class->path);
                 $title_ = $sheet->getCell('A3')->getValue();
-                $sheet->setCellValue('A3', $title_ = str_replace("[school]", "CVA", $title_));
+                $sheet->setCellValue('A3', $title_ = str_replace("[school]", $school->contact_name, $title_));
 
                 // set sheet name
                 $title_ = $sheet->getTitle();
@@ -332,6 +334,12 @@ class MarkSummaryController extends Controller
                 $class = Contact::findOne($model->class_id);
                 $students = ContactDetail::find()->where(['contact_id' => $model->class_id])->all();
 
+                // validate class
+                if (is_null($class)) {
+                    Yii::$app->getSession()->setFlash('error', 'Lớp chưa tạo trên hệ thống');
+                    return;
+                }
+
                 // set semester
                 $title_ = $sheet->getCell('A1')->getValue();
                 $sheet->setCellValue('A1', $title_ = str_replace("[semester]", $model->semester == 1 ? "1" : "2", $title_));
@@ -393,6 +401,7 @@ class MarkSummaryController extends Controller
 
                 $marks_summary_tmp = MarkSummary::find()->where(['student_id' => $students_id, 'class_id' => $model->class_id, 'semester' => $model->semester])->all();
                 $marks_summary = array();
+
                 foreach ($marks_summary_tmp as $item) {
                     $marks_summary[$item->student_id] = $item;
                 }
@@ -440,6 +449,23 @@ class MarkSummaryController extends Controller
             }
         } else {
             Yii::$app->getSession()->setFlash('error', 'File is not exits');
+        }
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Finds the MarkSummary model based on its primary key value.
+     * If the model is not found, a 404 HTTP exception will be thrown.
+     * @param integer $id
+     * @return MarkSummary the loaded model
+     * @throws NotFoundHttpException if the model cannot be found
+     */
+    protected function findModel($id)
+    {
+        if (($model = MarkSummary::findOne($id)) !== null) {
+            return $model;
+        } else {
+            throw new NotFoundHttpException('The requested page does not exist.');
         }
     }
 }

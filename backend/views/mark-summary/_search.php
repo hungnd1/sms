@@ -35,7 +35,7 @@ use kartik\widgets\Select2;
                     <?=
                     $form->field($model, 'class_id')->widget(Select2::classname(), [
                         'id' => 'class_id',
-                        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by'=>Yii::$app->user->id])->all(), 'id', 'contact_name'),
+                        'data' => $dataContact,
                         'pluginOptions' => [
                             'allowClear' => true,
                             'width' => '200px'

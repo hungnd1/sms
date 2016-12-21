@@ -104,7 +104,7 @@ use yii\helpers\Html;
     <?=
     $form->field($model, 'class_id')->widget(Select2::classname(), [
         'id' => 'class_id',
-        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::find()->where(['created_by' => Yii::$app->user->id])->all(), 'id', 'contact_name'),
+        'data' => \yii\helpers\ArrayHelper::map(\common\models\Contact::getAllClasses(), 'id', 'contact_name'),
         'pluginOptions' => [
             'allowClear' => true,
             'width' => '50%'

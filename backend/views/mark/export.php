@@ -2,9 +2,9 @@
 
 
 /* @var $this yii\web\View */
-/* @var $model common\models\TemplateSms */
+/* @var $model common\models\MarkSummary */
 
-$this->title = 'Tải lên danh sách điểm';
+$this->title = 'Xuất danh sách điểm';
 $this->params['breadcrumbs'][] = ['label' => 'Điểm môn học', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
 ?>
@@ -14,11 +14,11 @@ $this->params['breadcrumbs'][] = $this->title;
         <div class="portlet box green">
             <div class="portlet-title">
                 <div class="caption">
-                    <i class="fa fa-gift"></i>Tải lên danh sách điểm
+                    <i class="fa fa-gift"></i>Xuất danh sách điểm
                 </div>
             </div>
             <div class="portlet-body form">
-                <?= $this->render('_form_upload', [
+                <?= $this->render('_form_export', [
                     'model' => $model,
                 ]) ?>
             </div>

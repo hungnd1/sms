@@ -36,7 +36,7 @@ class MarkSummary extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['student_id', 'class_id', 'semester', 'mark'], 'required'],
+            [[], 'required'],
             [['student_id', 'class_id', 'subject_id', 'semester', 'created_at', 'updated_at', 'created_by', 'updated_by'], 'integer'],
             [['marks'], 'string', 'max' => 1024],
             [['description', 'action', 'file'], 'string', 'max' => 500],
