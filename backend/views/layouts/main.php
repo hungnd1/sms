@@ -181,8 +181,26 @@ $this->registerJs("Layout.init();");
                 ],
                 [
                     'encode' => false,
-                    'label' => '<i class="fa fa-server"></i> Gửi tin theo danh bạ',
+                    'label' => '<i class="fa fa-server"></i> Nhật ký gửi SMS',
                     'url' => ['history-contact/index'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Gửi tin theo danh bạ',
+                    'url' => ['history-contact/create', 'type' => 1],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Gửi tin theo file excel',
+                    'url' => ['history-contact/create', 'type' => 2],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Sinh nhật trong tháng '. date('m'),
+                    'url' => ['contact-detail/birthday'],
                     'require_auth' => true,
                 ],
 
@@ -204,7 +222,7 @@ $this->registerJs("Layout.init();");
                 [
                     'encode' => false,
                     'label' => '<i class="icon-users"></i> Nhận xét',
-                    //                'url' => ['user/index'],
+                    'url' => ['user/index'],
                     'require_auth' => true,
                 ],
             ]

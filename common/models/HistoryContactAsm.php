@@ -12,6 +12,9 @@ use Yii;
  * @property integer $contact_id
  * @property integer $created_at
  * @property integer $updated_at
+ * @property integer $content_number
+ * @property string  $api_sms_id
+ * @property integer $history_contact_status
  */
 class HistoryContactAsm extends \yii\db\ActiveRecord
 {
@@ -30,7 +33,8 @@ class HistoryContactAsm extends \yii\db\ActiveRecord
     {
         return [
             [['history_contact_id', 'contact_id'], 'required'],
-            [['history_contact_id', 'contact_id', 'created_at', 'updated_at'], 'integer'],
+            [['history_contact_id','content_number','history_contact_status', 'contact_id', 'created_at', 'updated_at'], 'integer'],
+            [['api_sms_id'], 'string'],
         ];
     }
 

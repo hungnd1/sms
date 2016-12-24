@@ -635,12 +635,10 @@ class TBApplication
         $option_type_arr[4]['description']='Giới tính';
         $option_type_arr[5]['name']='$diachi$';
         $option_type_arr[5]['description']='Địa chỉ';
-        $option_type_arr[6]['name']='$thanhpho$';
-        $option_type_arr[6]['description']='Thành phố';
-        $option_type_arr[7]['name']='$congty$';
-        $option_type_arr[7]['description']='Công ty';
-        $option_type_arr[8]['name']='$ngaysinh$';
-        $option_type_arr[8]['description']='Ngày sinh';
+        $option_type_arr[6]['name']='$congty$';
+        $option_type_arr[6]['description']='Công ty';
+        $option_type_arr[7]['name']='$ngaysinh$';
+        $option_type_arr[7]['description']='Ngày sinh';
         return $option_type_arr;
     }
     

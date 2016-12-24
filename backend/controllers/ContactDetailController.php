@@ -268,4 +268,16 @@ class ContactDetailController extends BaseBEController
             echo '{"status":"nok"}';
         }
     }
+
+    public function actionBirthday()
+    {
+        $searchModel = new ContactDetailSearch();
+        $dataProvider = $searchModel->searchBirthday(Yii::$app->request->queryParams);
+        $model = new ContactDetail();
+        return $this->render('birthday', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'model' => $model
+        ]);
+    }
 }

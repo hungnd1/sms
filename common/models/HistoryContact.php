@@ -17,6 +17,7 @@ use Yii;
  * @property integer $updated_at
  * @property integer $send_schedule
  * @property integer $member_by
+ * @property integer $total_sms
  */
 class HistoryContact extends \yii\db\ActiveRecord
 {
@@ -25,7 +26,12 @@ class HistoryContact extends \yii\db\ActiveRecord
      */
     const TYPE_CSKH = 1; // loai tin nhan cham soc khach hang
     const TYPE_ADV = 2; // loai tin nhan quang cao
+
     public $is_send;
+    public $contact_id;
+    public $uploadedFile;
+    public $errorFile;
+
     public static function tableName()
     {
         return 'history_contact';
@@ -37,9 +43,11 @@ class HistoryContact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['content', 'campain_name'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['type', 'brandname_id','is_send','template_id', 'created_at', 'updated_at', 'member_by'], 'integer'],
+            [['content', 'campain_name','brandname_id','contact_id'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
+            [['type', 'brandname_id','total_sms','contact_id','is_send','template_id', 'created_at', 'updated_at', 'member_by'], 'integer'],
             [['content', 'campain_name','send_schedule'], 'string', 'max' => 1024],
+            [['uploadedFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'xls', 'maxFiles' => 1],
+            [['errorFile'], 'safe'],
         ];
     }
 
@@ -77,5 +85,54 @@ class HistoryContact extends \yii\db\ActiveRecord
             return $listType[$this->type];
         }
         return '';
+    }
+
+    public static function getTemplateContact($contact_content,$contact_id){
+        $items = ContactDetail::findOne(['id'=>$contact_id]);
+        /** @var $items ContactDetail */
+        $tuoi =  HistoryContact::getAge($items->birthday);
+        $birthday = date('d-m-Y',  $items->birthday);
+        $contact_content = str_replace('$ten$', $items->fullname,$contact_content);
+        $contact_content = str_replace('$tuoi$', $tuoi,$contact_content);
+        $contact_content = str_replace('$email$', $items->email,$contact_content);
+        $contact_content = str_replace('$dienthoai$', $items->phone_number,$contact_content);
+        if($items->gender == ContactDetail::GENDER_MALE){
+            $contact_content = str_replace('$gioitinh$', 'Nam',$contact_content);
+        }else{
+            $contact_content = str_replace('$gioitinh$', 'Nu',$contact_content);
+        }
+        $contact_content = str_replace('$dienthoai$', $items->phone_number,$contact_content);
+        $contact_content = str_replace('$diachi$', $items->address,$contact_content);
+        $contact_content = str_replace('$congty$', $items->company,$contact_content);
+        if($items->birthday != 0)
+            $contact_content = str_replace('$ngaysinh$', $birthday,$contact_content);
+        else
+            $contact_content = str_replace('$ngaysinh$', '',$contact_content);
+        return $contact_content;
+    }
+
+    function getAge($birthdate = 0) {
+        if ($birthdate == 0) return '';
+        $birthdate = date('Y-m-d', $birthdate);
+        $bits = explode('-', $birthdate);
+        $age = date('Y') - $bits[0] - 1;
+
+        $arr[1] = 'm';
+        $arr[2] = 'd';
+
+        for ($i = 1; $arr[$i]; $i++) {
+            $n = date($arr[$i]);
+            if ($n < $bits[$i])
+                break;
+            if ($n > $bits[$i]) {
+                ++$age;
+                break;
+            }
+        }
+        return $age;
+    }
+
+    public function getTemplateFile() {
+        return Yii::$app->getUrlManager()->getBaseUrl() . '/static/example/contact.xls';
     }
 }

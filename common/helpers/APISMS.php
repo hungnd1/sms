@@ -1,5 +1,5 @@
 <?php
-
+namespace common\helpers;
 class APISMS
 {
     /**

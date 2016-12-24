@@ -1,8 +1,10 @@
 <?php
 
 use common\helpers\TBApplication;
+use common\models\Contact;
 use kartik\form\ActiveForm;
 use kartik\widgets\Select2;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
@@ -66,7 +68,7 @@ use yii\helpers\Html;
                                                                  style="margin-right: 30px;border-radius: 12px;padding: 0 15px;"
                                                                  type="button" id=""
                                                                  value="<?php echo $data['description']; ?>"
-                                                                 onclick="insertEmoticonAtTextareaCursor(<?php echo $data['name'] ?>')"/>
+                                                                 onclick="insertEmoticonAtTextareaCursor('<?php echo $data['name'] ?>')"/>
                         </td>
                         <?php
                         if ($i % 5 == 0)
@@ -83,8 +85,37 @@ use yii\helpers\Html;
     </div>
     <br>
     <?= $form->field($model, 'content', ['options' => ['class' => 'col-xs-12',
-        'onchange' => "countChar();"]])->textarea(['rows' => 6]) ?>
+        'onkeyup' => "countChar();"]])->textarea(['rows' => 6]) ?>
+    <?php
+    if($type == 1) {
 
+        $data = ArrayHelper::map(Contact::find()
+            ->andWhere(['status' => Contact::STATUS_ACTIVE])
+            ->andWhere(['created_by' => Yii::$app->user->id])->all(), 'id', 'contact_name');
+
+        echo $form->field($model, 'contact_id')->widget(Select2::classname(), [
+            'data' => $data,
+            'options' => ['placeholder' => 'Chọn danh bạ',
+                'multiple' => true],
+            'pluginOptions' => [
+                'allowClear' => true
+            ],
+        ])->label('Chọn danh bạ');
+    }else{ ?>
+        <div class="form-body">
+            <div class="row">
+                <div class="col-md-offset-2 col-md-10 text-right">
+                    <?= Html::a(Yii::t('app',"Tải file mẫu"), $model->getTemplateFile()) ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <?= $form->field($model, 'uploadedFile')->fileInput()->label('Dữ liệu file excel') ?>
+                </div>
+            </div>
+        </div>
+    <?php }
+    ?>
     <div class="form-actions">
         <div class="row">
             <div class="col-md-offset-3 col-md-9">
@@ -94,6 +125,8 @@ use yii\helpers\Html;
             </div>
         </div>
     </div>
+
+
 
     <?php ActiveForm::end(); ?>
 

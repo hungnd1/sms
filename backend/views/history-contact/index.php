@@ -43,7 +43,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'attribute' => 'campain_name',
                             'value'=>function ($model, $key, $index, $widget) {
                                 /** @var $model \common\models\HistoryContact */
-                                return Html::a($model->campain_name, ['view', 'id' => $model->id],['class'=>'label label-primary']);
+                                return $model->campain_name;
 
                             },
                         ],
@@ -64,7 +64,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             'filterType' => GridView::FILTER_DATE,
                             'attribute' => 'send_schedule',
                             'value' => function($model){
-                                return date('d-m-Y', $model->send_schedule);
+                                return $model->send_schedule ? date('d-m-Y H:i:s', $model->send_schedule) : 'Đã gửi luôn';
                             }
                         ],
                         [
@@ -104,10 +104,6 @@ $this->params['breadcrumbs'][] = $this->title;
                                 'pluginOptions' => ['allowClear' => true],
                             ],
                             'filterInputOptions' => ['placeholder' => 'Tất cả'],
-                        ],
-                        [
-                            'class' => 'kartik\grid\ActionColumn',
-//                            'dropdown' => true,
                         ],
                     ],
                 ]); ?>

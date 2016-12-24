@@ -256,8 +256,8 @@ class User extends ActiveRecord implements IdentityInterface
             [
                 'phone_number',
 //                'match', 'pattern' => '/^0[0-9]$/',
-                'match', 'pattern' => '/^(84)\d{9,10}$/',
-                'message' => 'Số điện thoại không hợp lệ - Định dạng số điện thoại bắt đầu với số 84, ví dụ 84912345678, 8412312341234'
+                'match', 'pattern' => '/^(0)\d{9,10}$/',
+                'message' => 'Số điện thoại không hợp lệ - Định dạng số điện thoại bắt đầu với số 0, ví dụ 0912345678, 012312341234'
             ],
         ];
     }
