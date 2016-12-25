@@ -1,53 +1,91 @@
 <?php
 
+use kartik\form\ActiveForm;
+use kartik\widgets\Select2;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
-use yii\widgets\ActiveForm;
 
 /* @var $this yii\web\View */
 /* @var $model common\models\ContactDetailSearch */
 /* @var $form yii\widgets\ActiveForm */
+$dataCreated_by = ArrayHelper::map(\common\models\User::find()->andWhere(['status'=>\common\models\User::STATUS_ACTIVE])->all(),'id','username');
 ?>
 
 <div class="contact-detail-search">
 
     <?php $form = ActiveForm::begin([
-        'action' => ['index'],
-        'method' => 'get',
+        'type' => ActiveForm::TYPE_VERTICAL,
+        'options' => ['enctype' => 'multipart/form-data'],
+        'action' => ['search'],
+        'fullSpan' => 8,
+        'method' => 'post',
     ]); ?>
 
-    <?= $form->field($model, 'id') ?>
+    <div class="form-body" >
+        <table style="margin-left: 25%;">
+            <tr>
+                <td style="padding-right: 10%;">
 
-    <?= $form->field($model, 'fullname') ?>
+                <?= $form->field($model,'created_by')->widget(Select2::classname(), [
+                        'data' => $dataCreated_by,
+                        'options' => ['placeholder' => 'Thành viên'],
+                        'pluginOptions' => [
+                            'allowClear' => true,
+                            'width' => '200px'
+                        ],
+                    ])->label('Thành viên'); ?>
+                </td>
+                <td style="padding-right: 10%;width: 200px;">
+                    <?= $form->field($model,'searchphone')->textInput(['maxlength' => 15, 'class' => 'input-circle','width'=>'200px;'])->label('Số điện thoại'); ?>
+                </td>
+                <td>
+                    <?= $form->field($model, 'type')->dropDownList(
+                        \common\models\HistoryContact::getListTypeAll(), ['class' => 'input-circle']
+                    )->label('Loại tin') ?>
+                </td>
+            </tr>
 
-    <?= $form->field($model, 'phone_number') ?>
+            <tr>
+                <td style="padding-right: 10%;width: 300px;">
+                    <?php
+                    echo $form->field($model, 'fromdate')->widget(\kartik\date\DatePicker::className(), [
+                        'options' => ['placeholder' => 'Từ ngày'],
+                        'convertFormat' => true,
+                        'pluginOptions' => [
+                            'format' => 'dd/M/yyyy',
+                            'todayHighlight' => true,
+                            'width' => '200px'
+                        ]
+                    ])->label('Từ ngày');
+                    ?>
+                </td>
+                <td style="padding-right: 10%;width: 300px;">
+                    <?php
+                    echo $form->field($model, 'todate')->widget(\kartik\date\DatePicker::className(), [
+                        'options' => ['placeholder' => 'Đến ngày'],
+                        'convertFormat' => true,
+                        'pluginOptions' => [
+                            'format' => 'dd/M/yyyy',
+                            'todayHighlight' => true,
+                            'width' => '200px'
+                        ]
+                    ])->label('Đến ngày');
+                    ?>
+                </td>
+                <td>
+                    <?= $form->field($model, 'status_')->dropDownList(
+                        \common\models\HistoryContact::getListStatusAll(), ['class' => 'input-circle']
+                    )->label('Trạng thái') ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+            <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
+                </td>
+            </tr>
+        </table>
 
-    <?= $form->field($model, 'status') ?>
 
-    <?= $form->field($model, 'created_at') ?>
-
-    <?php // echo $form->field($model, 'updated_at') ?>
-
-    <?php // echo $form->field($model, 'template_createby') ?>
-
-    <?php // echo $form->field($model, 'gender') ?>
-
-    <?php // echo $form->field($model, 'address') ?>
-
-    <?php // echo $form->field($model, 'birthday') ?>
-
-    <?php // echo $form->field($model, 'email') ?>
-
-    <?php // echo $form->field($model, 'company') ?>
-
-    <?php // echo $form->field($model, 'notes') ?>
-
-    <?php // echo $form->field($model, 'created_by') ?>
-
-    <?php // echo $form->field($model, 'contact_id') ?>
-
-    <div class="form-group">
-        <?= Html::submitButton('Search', ['class' => 'btn btn-primary']) ?>
-        <?= Html::resetButton('Reset', ['class' => 'btn btn-default']) ?>
     </div>
 
     <?php ActiveForm::end(); ?>

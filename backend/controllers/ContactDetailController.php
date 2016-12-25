@@ -2,10 +2,14 @@
 
 namespace backend\controllers;
 
+use common\components\ActionLogTracking;
 use common\models\ContactDetail;
 use common\models\ContactDetailSearch;
+use common\models\HistoryContactAsm;
+use common\models\UserActivity;
 use kartik\widgets\ActiveForm;
 use Yii;
+use yii\data\ActiveDataProvider;
 use yii\db\Exception;
 use yii\filters\VerbFilter;
 use yii\web\NotFoundHttpException;
@@ -28,11 +32,11 @@ class ContactDetailController extends BaseBEController
                     'delete' => ['post'],
                 ],
             ],
-//            [
-//                'class' => ActionLogTracking::className(),
-//                'user' => Yii::$app->user,
-//                'model_type_default' => UserActivity::ACTION_TARGET_TYPE_CONTENT,
-//            ],
+            [
+                'class' => ActionLogTracking::className(),
+                'user' => Yii::$app->user,
+                'model_type_default' => UserActivity::ACTION_TARGET_TYPE_CONTENT,
+            ],
         ]);
     }
 
@@ -276,6 +280,20 @@ class ContactDetailController extends BaseBEController
         $model = new ContactDetail();
         return $this->render('birthday', [
             'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
+            'model' => $model
+        ]);
+    }
+
+    public function actionSearch(){
+
+        $searchModel = new ContactDetailSearch();
+        $model = new HistoryContactAsm();
+        $dataProvider = $searchModel->searchHistory();
+        if ($model->load(Yii::$app->request->post())) {
+            $dataProvider = $searchModel->searchHistory($model);
+        }
+        return $this->render('search', [
             'dataProvider' => $dataProvider,
             'model' => $model
         ]);

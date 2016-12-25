@@ -315,6 +315,8 @@ class HistoryContactController extends BaseBEController
                 }
                 $model->save(false);
             }
+            $history->updated_at = time();
+            $history->save(false);
         }
     }
 }

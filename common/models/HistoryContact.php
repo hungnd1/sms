@@ -26,11 +26,16 @@ class HistoryContact extends \yii\db\ActiveRecord
      */
     const TYPE_CSKH = 1; // loai tin nhan cham soc khach hang
     const TYPE_ADV = 2; // loai tin nhan quang cao
+    const TYPE_ALL = 0;
 
     public $is_send;
     public $contact_id;
     public $uploadedFile;
     public $errorFile;
+
+    const STATUS_ALL = 2;
+    const STATUS_SUCCESS = 1;
+    const STATUS_ERROR = 0;
 
     public static function tableName()
     {
@@ -43,9 +48,9 @@ class HistoryContact extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['content', 'campain_name','brandname_id','contact_id'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['type', 'brandname_id','total_sms','contact_id','is_send','template_id', 'created_at', 'updated_at', 'member_by'], 'integer'],
-            [['content', 'campain_name','send_schedule'], 'string', 'max' => 1024],
+            [['content', 'campain_name', 'brandname_id', 'contact_id'], 'required', 'message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
+            [['type', 'brandname_id', 'total_sms', 'contact_id', 'is_send', 'template_id', 'created_at', 'updated_at', 'member_by'], 'integer'],
+            [['content', 'campain_name', 'send_schedule'], 'string', 'max' => 1024],
             [['uploadedFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'xls', 'maxFiles' => 1],
             [['errorFile'], 'safe'],
         ];
@@ -73,8 +78,36 @@ class HistoryContact extends \yii\db\ActiveRecord
     public static function getListType()
     {
         return [
-            self::TYPE_CSKH   => 'Tin nhắn chăm sóc khách hàng',
+            self::TYPE_CSKH => 'Tin nhắn chăm sóc khách hàng',
             self::TYPE_ADV => 'Tin nhắn quảng cáo',
+        ];
+    }
+
+    public static function getListByType($type)
+    {
+        if ($type == self::TYPE_ADV) {
+            return 'Tin nhắn quảng cáo';
+        } else {
+            return 'Tin nhắn chăm sóc khách hàng';
+        }
+    }
+
+    public static function getListTypeAll()
+    {
+        return [
+            self::TYPE_ALL => 'Tất cả',
+            self::TYPE_CSKH => 'Tin nhắn chăm sóc khách hàng',
+            self::TYPE_ADV => 'Tin nhắn quảng cáo',
+        ];
+    }
+
+
+    public static function getListStatusAll()
+    {
+        return [
+            self::STATUS_ALL => 'Tất cả',
+            self::STATUS_SUCCESS => 'Đã gửi',
+            self::STATUS_ERROR => 'Lỗi',
         ];
     }
 
@@ -87,31 +120,34 @@ class HistoryContact extends \yii\db\ActiveRecord
         return '';
     }
 
-    public static function getTemplateContact($contact_content,$contact_id){
-        $items = ContactDetail::findOne(['id'=>$contact_id]);
+
+    public static function getTemplateContact($contact_content, $contact_id)
+    {
+        $items = ContactDetail::findOne(['id' => $contact_id]);
         /** @var $items ContactDetail */
-        $tuoi =  HistoryContact::getAge($items->birthday);
-        $birthday = date('d-m-Y',  $items->birthday);
-        $contact_content = str_replace('$ten$', $items->fullname,$contact_content);
-        $contact_content = str_replace('$tuoi$', $tuoi,$contact_content);
-        $contact_content = str_replace('$email$', $items->email,$contact_content);
-        $contact_content = str_replace('$dienthoai$', $items->phone_number,$contact_content);
-        if($items->gender == ContactDetail::GENDER_MALE){
-            $contact_content = str_replace('$gioitinh$', 'Nam',$contact_content);
-        }else{
-            $contact_content = str_replace('$gioitinh$', 'Nu',$contact_content);
+        $tuoi = HistoryContact::getAge($items->birthday);
+        $birthday = date('d-m-Y', $items->birthday);
+        $contact_content = str_replace('$ten$', $items->fullname, $contact_content);
+        $contact_content = str_replace('$tuoi$', $tuoi, $contact_content);
+        $contact_content = str_replace('$email$', $items->email, $contact_content);
+        $contact_content = str_replace('$dienthoai$', $items->phone_number, $contact_content);
+        if ($items->gender == ContactDetail::GENDER_MALE) {
+            $contact_content = str_replace('$gioitinh$', 'Nam', $contact_content);
+        } else {
+            $contact_content = str_replace('$gioitinh$', 'Nu', $contact_content);
         }
-        $contact_content = str_replace('$dienthoai$', $items->phone_number,$contact_content);
-        $contact_content = str_replace('$diachi$', $items->address,$contact_content);
-        $contact_content = str_replace('$congty$', $items->company,$contact_content);
-        if($items->birthday != 0)
-            $contact_content = str_replace('$ngaysinh$', $birthday,$contact_content);
+        $contact_content = str_replace('$dienthoai$', $items->phone_number, $contact_content);
+        $contact_content = str_replace('$diachi$', $items->address, $contact_content);
+        $contact_content = str_replace('$congty$', $items->company, $contact_content);
+        if ($items->birthday != 0)
+            $contact_content = str_replace('$ngaysinh$', $birthday, $contact_content);
         else
-            $contact_content = str_replace('$ngaysinh$', '',$contact_content);
+            $contact_content = str_replace('$ngaysinh$', '', $contact_content);
         return $contact_content;
     }
 
-    function getAge($birthdate = 0) {
+    function getAge($birthdate = 0)
+    {
         if ($birthdate == 0) return '';
         $birthdate = date('Y-m-d', $birthdate);
         $bits = explode('-', $birthdate);
@@ -132,7 +168,8 @@ class HistoryContact extends \yii\db\ActiveRecord
         return $age;
     }
 
-    public function getTemplateFile() {
+    public function getTemplateFile()
+    {
         return Yii::$app->getUrlManager()->getBaseUrl() . '/static/example/contact.xls';
     }
 }

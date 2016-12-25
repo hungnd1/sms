@@ -228,6 +228,26 @@ $this->registerJs("Layout.init();");
             ]
         ],
         [
+            'label' => 'Tìm kiếm và lịch sử hoạt động',
+            'url' => 'javascript:;',
+            'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],
+            'linkOptions' => ['data-hover' => 'megamenu-dropdown', 'data-close-others' => 'true'],
+            'items' => [
+                [
+                    'encode' => false,
+                    'label' => '<i class="fa fa-server"></i> Tìm kiếm',
+                    'url' => ['contact-detail/search'],
+                    'require_auth' => true,
+                ],
+                [
+                    'encode' => false,
+                    'label' => '<i class="icon-users"></i> Lịch sử hoạt động',
+                    'url' => ['user/index'],
+                    'require_auth' => true,
+                ],
+            ]
+        ],
+        [
             'label' => 'Quản lý môn học và điểm',
             'url' => 'javascript:;',
             'options' => ['class' => 'menu-dropdown mega-menu-dropdown'],

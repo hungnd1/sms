@@ -32,11 +32,17 @@ class ContactDetail extends \yii\db\ActiveRecord
         return 'contact_detail';
     }
 
+
+
     public $file;
     const GENDER_MALE = 1;
     const GENDER_FEMAILE = 2;
-
-
+    public $type;
+    public $searchphone;
+    public $fromdate;
+    public $todate;
+    public $content;
+    public $status_;
     const STATUS_ACTIVE = 10;
     const STATUS_INACTIVE = 0;
 
@@ -47,16 +53,16 @@ class ContactDetail extends \yii\db\ActiveRecord
     {
         return [
             [['phone_number','fullname','email','status'], 'required','message' => '{attribute} không được để trống', 'on' => 'admin_create_update'],
-            [['status', 'created_at', 'updated_at', 'gender', 'created_by', 'contact_id'], 'integer'],
-            [['fullname', 'notes','birthday'], 'string', 'max' => 500],
-            [['phone_number'], 'string', 'max' => 20],
+            [['status', 'created_at','status_','type', 'updated_at', 'gender', 'created_by', 'contact_id'], 'integer'],
+            [['fullname','fromdate','todate','content', 'notes','birthday'], 'string', 'max' => 500],
+            [['phone_number','searchphone'], 'string', 'max' => 20],
             [['address','file'], 'string', 'max' => 250],
             [['email', 'company'], 'string', 'max' => 100],
             [
                 'phone_number',
 //                'match', 'pattern' => '/^0[0-9]$/',
-                'match', 'pattern' => '/^(84)\d{9,10}$/',
-                'message' => 'Số điện thoại không hợp lệ - Định dạng số điện thoại bắt đầu với số 84, ví dụ 84912345678, 8412312341234'
+                'match', 'pattern' => '/^(0)\d{9,10}$/',
+                'message' => 'Số điện thoại không hợp lệ - Định dạng số điện thoại bắt đầu với số 0, ví dụ 0912345678, 012312341234'
             ],
         ];
     }
